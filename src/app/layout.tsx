@@ -8,8 +8,8 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Catálogo de Pratas | Admin",
-  description: "Sistema de catálogo de joias em prata",
+  title: "DM Pratas",
+  description: "Sistema de catálogo de joias em prata 925",
 };
 
 export default function RootLayout({
