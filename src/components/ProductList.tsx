@@ -1,10 +1,9 @@
 "use client";
 
-import { Trash2 } from "lucide-react";
+import { DeleteProductDialog } from "./admin/DeleteProductDialog";
 import * as ScrollArea from "@radix-ui/react-scroll-area";
 import * as Separator from "@radix-ui/react-separator";
 import Image from "next/image";
-import { Button } from "./ui/button";
 import { AddProductDialog } from "./admin/AddProductDialog";
 import { EditProductDialog } from "./admin/EditProductDialog";
 import earringsImg from "@/assets/earrings.png";
@@ -58,9 +57,7 @@ function ProductRow({ product }: { product: Product }) {
 
       <div className="flex shrink-0 items-center gap-2">
         <EditProductDialog product={product} />
-        <Button variant="ghost" title="Excluir">
-          <Trash2 className="h-4 w-4" />
-        </Button>
+        <DeleteProductDialog product={product} />
       </div>
     </div>
   );
