@@ -1,11 +1,12 @@
 "use client";
 
-import { Pencil, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import * as ScrollArea from "@radix-ui/react-scroll-area";
 import * as Separator from "@radix-ui/react-separator";
 import Image from "next/image";
 import { Button } from "./ui/button";
 import { AddProductDialog } from "./admin/AddProductDialog";
+import { EditProductDialog } from "./admin/EditProductDialog";
 import earringsImg from "@/assets/earrings.png";
 
 import type { StaticImageData } from "next/image";
@@ -56,9 +57,7 @@ function ProductRow({ product }: { product: Product }) {
       </div>
 
       <div className="flex shrink-0 items-center gap-2">
-        <Button variant="ghost" title="Editar">
-          <Pencil className="h-4 w-4" />
-        </Button>
+        <EditProductDialog product={product} />
         <Button variant="ghost" title="Excluir">
           <Trash2 className="h-4 w-4" />
         </Button>
