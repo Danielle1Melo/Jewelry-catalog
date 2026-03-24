@@ -1,10 +1,11 @@
 "use client";
 
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import * as ScrollArea from "@radix-ui/react-scroll-area";
 import * as Separator from "@radix-ui/react-separator";
 import Image from "next/image";
 import { Button } from "./ui/button";
+import { AddProductDialog } from "./admin/AddProductDialog";
 import earringsImg from "@/assets/earrings.png";
 
 import type { StaticImageData } from "next/image";
@@ -79,10 +80,7 @@ export function ProductList() {
           </p>
         </div>
 
-        <Button variant="primary">
-          <Plus className="h-4 w-4" />
-          Add Produto
-        </Button>
+        <AddProductDialog />
       </div>
 
       <ScrollArea.Root className="overflow-hidden rounded-xl bg-white shadow-sm">

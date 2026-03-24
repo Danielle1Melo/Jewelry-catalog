@@ -12,7 +12,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variants = {
       primary:
-        "flex items-center gap-1.5 rounded-md bg-tiffany px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-tiffany-dark cursor-pointer",
+        "flex items-center gap-1.5 rounded-md bg-tiffany px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-tiffany-dark cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-tiffany",
       ghost:
         "rounded-md p-1.5 text-description transition-colors hover:bg-gray-100 hover:text-gray-hover cursor-pointer",
     };

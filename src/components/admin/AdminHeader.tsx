@@ -1,5 +1,5 @@
 import { LogOut } from "lucide-react";
-import { Logo } from "./Logo";
+import { Logo } from "../Logo";
 
 export function AdminHeader() {
   return (

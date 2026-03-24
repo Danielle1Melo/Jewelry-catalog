@@ -1,4 +1,4 @@
-import { AdminHeader } from "@/components/AdminHeader";
+import { AdminHeader } from "@/components/admin/AdminHeader";
 import { ProductList } from "@/components/ProductList";
 
 export default function AdminPage() {
