@@ -4,7 +4,9 @@ import { cloudinary } from "@/lib/cloudinary";
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
-    const files = formData.getAll("files") as File[];
+    const files = formData.getAll("files").filter(
+      (entry): entry is File => entry instanceof File
+    );
 
     if (!files.length) {
       return NextResponse.json(

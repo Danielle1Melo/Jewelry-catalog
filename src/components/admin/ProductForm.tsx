@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { X as XIcon, ImagePlus, Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input, Textarea } from "../ui/input";
@@ -96,6 +96,13 @@ export function ProductForm({
     },
     []
   );
+
+  useEffect(() => {
+    return () => {
+      newImages.forEach((img) => URL.revokeObjectURL(img.previewUrl));
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const removeExisting = (id: string) => {
     setKept((prev) => prev.filter((img) => img.id !== id));

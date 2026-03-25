@@ -20,18 +20,18 @@ interface Product {
 }
 
 const mockProducts: Product[] = [
-  { id: 1, name: "Luna Crescent Necklace", price: 89, category: "necklaces", isNew: true, image: earringsImg },
-  { id: 2, name: "Aria Drop Earrings", price: 65, category: "earrings", isNew: true, image: earringsImg },
-  { id: 3, name: "Serpentine Cuff Bracelet", price: 120, category: "bracelets", isNew: false, image: earringsImg },
-  { id: 4, name: "Celestial Star Charm", price: 45, category: "charms", isNew: true, image: earringsImg },
-  { id: 5, name: "Infinity Hoop Earrings", price: 78, category: "earrings", isNew: false, image: earringsImg },
-  { id: 6, name: "Pearl Chain Necklace", price: 135, category: "necklaces", isNew: true, image: earringsImg },
-  { id: 7, name: "Woven Silver Bracelet", price: 95, category: "bracelets", isNew: false, image: earringsImg },
-  { id: 8, name: "Heart Lock Charm", price: 55, category: "charms", isNew: false, image: earringsImg },
-  { id: 9, name: "Cascade Layered Necklace", price: 155, category: "necklaces", isNew: true, image: earringsImg },
-  { id: 10, name: "Stardust Stud Earrings", price: 48, category: "earrings", isNew: false, image: earringsImg },
-  { id: 11, name: "Ocean Wave Bracelet", price: 110, category: "bracelets", isNew: true, image: earringsImg },
-  { id: 12, name: "Butterfly Wing Charm", price: 42, category: "charms", isNew: false, image: earringsImg },
+  { id: 1, name: "Colar Meia Lua", price: 89, category: "Colares", isNew: true, image: earringsImg },
+  { id: 2, name: "Brinco Gota", price: 65, category: "Brincos", isNew: true, image: earringsImg },
+  { id: 3, name: "Bracelete Serpente", price: 120, category: "Braceletes", isNew: false, image: earringsImg },
+  { id: 4, name: "Berloque Estrela", price: 45, category: "Berloques", isNew: true, image: earringsImg },
+  { id: 5, name: "Brinco Argola Infinito", price: 78, category: "Brincos", isNew: false, image: earringsImg },
+  { id: 6, name: "Colar de Pérolas", price: 135, category: "Colares", isNew: true, image: earringsImg },
+  { id: 7, name: "Pulseira Trançada", price: 95, category: "Pulseiras Femininas", isNew: false, image: earringsImg },
+  { id: 8, name: "Berloque Coração", price: 55, category: "Berloques", isNew: false, image: earringsImg },
+  { id: 9, name: "Colar Cascata", price: 155, category: "Colares", isNew: true, image: earringsImg },
+  { id: 10, name: "Brinco Ponto de Luz", price: 48, category: "Brincos", isNew: false, image: earringsImg },
+  { id: 11, name: "Pulseira Ondas", price: 110, category: "Pulseiras Femininas", isNew: true, image: earringsImg },
+  { id: 12, name: "Berloque Borboleta", price: 42, category: "Berloques", isNew: false, image: earringsImg },
 ];
 
 function ProductRow({ product }: { product: Product }) {
@@ -50,8 +50,8 @@ function ProductRow({ product }: { product: Product }) {
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium text-title">{product.name}</p>
         <p className="text-xs text-description">
-          ${product.price} · {product.category}
-          {product.isNew && " · New"}
+          R${product.price} · {product.category}
+          {product.isNew && " · Novidade"}
         </p>
       </div>
 

@@ -10,7 +10,7 @@
   --color-white: #FFFFFF;
 
   --font-sans: var(--font-inter);
-  --font-playfair: var(--font-playfair);
+  --font-heading: var(--font-playfair);
 }
 
 body {
@@ -19,5 +19,5 @@ body {
 }
 
 h1, h2, h3 {
-  font-family: var(--font-playfair);
+  font-family: var(--font-heading);
 }
