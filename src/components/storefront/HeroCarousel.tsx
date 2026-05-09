@@ -5,26 +5,27 @@ import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import Image from "next/image";
 import { ChevronRight } from "lucide-react";
-import earringsImg from "@/assets/earrings.png";
+import Banner1 from "@/assets/Banner.png";
+import Banner2 from "@/assets/BannerDM.png";
 
 const slides = [
   {
     label: "COLEÇÃO PRATA",
     heading: "Elegância atemporal",
     subtitle: "Peças de prata para o seu dia a dia.",
-    image: earringsImg,
+    image: Banner1,
   },
   {
     label: "COLEÇÃO PRATA",
     heading: "Brilho natural",
     subtitle: "Joias que contam a sua história.",
-    image: earringsImg,
+    image: Banner2,
   },
   {
     label: "COLEÇÃO PRATA",
     heading: "Estilo único",
     subtitle: "Acessórios que completam o seu look.",
-    image: earringsImg,
+    image: Banner2,
   },
 ];
 
@@ -54,11 +55,13 @@ export function HeroCarousel() {
         <div className="flex">
           {slides.map((slide, index) => (
             <div key={index} className="relative min-w-0 flex-[0_0_100%]">
-              <div className="relative aspect-[3/4] w-full">
+              <div className="relative aspect-[4/5] w-full max-h-[70vh] md:aspect-[16/9]">
                 <Image
                   src={slide.image}
                   alt={slide.heading}
                   fill
+                  sizes="100vw"
+                  quality={90}
                   className="object-cover"
                   priority={index === 0}
                 />

@@ -1,7 +1,20 @@
+"use client";
+
+import { useState } from "react";
+import { Header } from "@/components/storefront/Header";
+import { HeroCarousel } from "@/components/storefront/HeroCarousel";
+import { CategoriesSection } from "@/components/storefront/CategoriesSection";
+import { FeaturedProducts } from "@/components/storefront/FeaturedProducts";
+
 export default function HomePage() {
+  const [activeTab, setActiveTab] = useState("Todos");
+
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <p className="text-description">Em breve</p>
+    <div className="min-h-screen bg-white">
+      <Header />
+      <HeroCarousel />
+      <CategoriesSection activeTab={activeTab} onTabChange={setActiveTab} />
+      <FeaturedProducts activeTab={activeTab} />
     </div>
   );
 }

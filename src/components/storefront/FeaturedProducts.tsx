@@ -8,15 +8,18 @@ interface Product {
   id: number;
   name: string;
   price: number;
+  category: string;
   isNew: boolean;
   image: StaticImageData;
 }
 
 const featuredProducts: Product[] = [
-  { id: 1, name: "Colar Lua Crescente", price: 89, isNew: true, image: earringsImg },
-  { id: 2, name: "Brincos Aria Drop", price: 65, isNew: true, image: earringsImg },
-  { id: 3, name: "Pulseira de punho serp...", price: 120, isNew: true, image: earringsImg },
-  { id: 4, name: "Amuleto Estrela Celest...", price: 45, isNew: false, image: earringsImg },
+  { id: 1, name: "Colar Lua Crescente", price: 89, category: "Colares", isNew: true, image: earringsImg },
+  { id: 2, name: "Brincos Aria Drop", price: 65, category: "Brincos", isNew: true, image: earringsImg },
+  { id: 3, name: "Pulseira Serpente", price: 120, category: "Braceletes", isNew: true, image: earringsImg },
+  { id: 4, name: "Amuleto Estrela Celeste", price: 45, category: "Berloques", isNew: false, image: earringsImg },
+  { id: 5, name: "Brinco Ponto de Luz", price: 48, category: "Brincos", isNew: true, image: earringsImg },
+  { id: 6, name: "Colar de Pérolas", price: 135, category: "Colares", isNew: false, image: earringsImg },
 ];
 
 function ProductCard({ product }: { product: Product }) {
@@ -45,32 +48,43 @@ function ProductCard({ product }: { product: Product }) {
   );
 }
 
-export function FeaturedProducts() {
+interface FeaturedProductsProps {
+  activeTab: string;
+}
+
+export function FeaturedProducts({ activeTab }: FeaturedProductsProps) {
+  const filtered =
+    activeTab === "Todos"
+      ? featuredProducts
+      : featuredProducts.filter((p) => p.category === activeTab);
+
   return (
     <section id="destaques" className="px-5 py-10">
-      <div className="mb-6 text-center">
-        <span className="text-xs font-semibold tracking-widest text-tiffany uppercase">
-          Selecionado para você
-        </span>
-        <h2 className="mt-1 font-heading text-2xl font-bold text-title">
-          Peças em destaque
-        </h2>
-      </div>
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-6 text-center">
+          <span className="text-xs font-semibold tracking-widest text-tiffany uppercase">
+            Selecionado para você
+          </span>
+          <h2 className="mt-1 font-heading text-2xl font-bold text-title">
+            Peças em destaque
+          </h2>
+        </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        {featuredProducts.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
+          {filtered.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
 
-      <div className="mt-6 text-center">
-        <a
-          href="#"
-          className="inline-flex items-center gap-1 text-sm font-semibold text-tiffany transition-colors hover:text-tiffany-dark"
-        >
-          View All
-          <ArrowRight className="h-4 w-4" />
-        </a>
+        <div className="mt-6 text-center">
+          <a
+            href="#"
+            className="inline-flex items-center gap-1 text-sm font-semibold text-tiffany transition-colors hover:text-tiffany-dark"
+          >
+            View All
+            <ArrowRight className="h-4 w-4" />
+          </a>
+        </div>
       </div>
     </section>
   );
