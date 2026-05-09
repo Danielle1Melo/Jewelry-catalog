@@ -4,11 +4,20 @@
   --color-tiffany: #0ABAB5;
   --color-tiffany-dark: #076966;
   --color-tiffany-light: #E0F7F6;
-  --font-sans: var(--font-geist-sans);
+  --color-title: #1A1A2E;
+  --color-description: #6B7280;
+  --color-gray-hover: #1A1A2E;
+  --color-white: #FFFFFF;
+
+  --font-sans: var(--font-inter);
+  --font-heading: var(--font-playfair);
 }
 
 body {
   background: #ffffff;
   color: #171717;
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-heading);
 }

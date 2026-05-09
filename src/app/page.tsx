@@ -1,17 +1,19 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Lock, Eye, EyeOff } from "lucide-react";
 import { Logo } from "@/components/Logo";
 
 export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // TODO: implementar autenticação
-    console.log("Login attempt");
+    // TODO: implementar autenticação real
+    router.push("/admin");
   }
 
   return (
