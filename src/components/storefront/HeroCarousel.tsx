@@ -7,6 +7,7 @@ import Image from "next/image";
 import { ChevronRight } from "lucide-react";
 import Banner1 from "@/assets/Banner.png";
 import Banner2 from "@/assets/BannerDM.png";
+import Banner3 from "@/assets/banner3.png";
 
 const slides = [
   {
@@ -25,7 +26,7 @@ const slides = [
     label: "COLEÇÃO PRATA",
     heading: "Estilo único",
     subtitle: "Acessórios que completam o seu look.",
-    image: Banner2,
+    image: Banner3,
   },
 ];
 

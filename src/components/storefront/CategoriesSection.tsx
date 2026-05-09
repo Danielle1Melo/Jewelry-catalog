@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import earringsImg from "@/assets/earrings.png";
 
@@ -29,7 +30,6 @@ export function CategoriesSection({ activeTab, onTabChange }: CategoriesSectionP
           </h2>
         </div>
 
-        {/* Tabs */}
         <div className="relative mb-6">
           <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-6 bg-gradient-to-r from-white to-transparent" />
           <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-6 bg-gradient-to-l from-white to-transparent" />
@@ -53,13 +53,9 @@ export function CategoriesSection({ activeTab, onTabChange }: CategoriesSectionP
 
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           {categories.map((cat) => (
-            <a
+            <Link
               key={cat.name}
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                onTabChange(cat.name);
-              }}
+              href={`/catalogo?categoria=${encodeURIComponent(cat.name)}`}
               className="group relative overflow-hidden rounded-xl"
             >
               <div className="aspect-[4/3]">
@@ -79,7 +75,7 @@ export function CategoriesSection({ activeTab, onTabChange }: CategoriesSectionP
                   <ChevronRight className="h-3 w-3" />
                 </span>
               </div>
-            </a>
+            </Link>
           ))}
         </div>
       </div>

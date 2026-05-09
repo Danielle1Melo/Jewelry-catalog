@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import earringsImg from "@/assets/earrings.png";
 
@@ -77,13 +78,13 @@ export function FeaturedProducts({ activeTab }: FeaturedProductsProps) {
         </div>
 
         <div className="mt-6 text-center">
-          <a
-            href="#"
+          <Link
+            href="/catalogo"
             className="inline-flex items-center gap-1 text-sm font-semibold text-tiffany transition-colors hover:text-tiffany-dark"
           >
             View All
             <ArrowRight className="h-4 w-4" />
-          </a>
+          </Link>
         </div>
       </div>
     </section>
