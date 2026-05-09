@@ -5,10 +5,9 @@ import { Search, Menu, X } from "lucide-react";
 import { Logo } from "../Logo";
 
 const NAV_LINKS = [
-  { label: "Brincos", href: "#categorias" },
-  { label: "Colares", href: "#categorias" },
-  { label: "Braceletes", href: "#categorias" },
-  { label: "Berloques", href: "#categorias" },
+  { label: "Home", href: "/" },
+  { label: "Catálogo", href: "/catalogo" },
+  { label: "Cuidados", href: "#cuidados" },
 ];
 
 export function Header() {
