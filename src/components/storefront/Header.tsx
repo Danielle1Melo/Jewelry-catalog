@@ -7,7 +7,7 @@ import { Logo } from "../Logo";
 const NAV_LINKS = [
   { label: "Home", href: "/" },
   { label: "Catálogo", href: "/catalogo" },
-  { label: "Cuidados", href: "#cuidados" },
+  { label: "Cuidados", href: "/cuidados" },
 ];
 
 export function Header() {

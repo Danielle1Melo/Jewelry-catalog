@@ -7,6 +7,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Header } from "@/components/storefront/Header";
 import { PriceFilter } from "@/components/storefront/PriceFilter";
+import { Footer } from "@/components/storefront/Footer";
 import earringsImg from "@/assets/earrings.png";
 
 import type { StaticImageData } from "next/image";
@@ -163,6 +164,7 @@ export default function CatalogoPage() {
       <Suspense>
         <CatalogoContent />
       </Suspense>
+      <Footer />
     </div>
   );
 }
