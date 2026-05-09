@@ -1,3 +1,9 @@
+if (typeof window !== "undefined") {
+  throw new Error(
+    "This module contains server-only secrets and must not be imported in client-side code."
+  );
+}
+
 import { v2 as cloudinary } from "cloudinary";
 
 const { CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET } =

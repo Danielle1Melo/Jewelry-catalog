@@ -12,8 +12,10 @@ export function AdminHeader() {
       </div>
 
       <button
+        type="button"
         className="text-tiffany hover:text-tiffany-dark cursor-pointer"
         title="Sair"
+        aria-label="Sair"
       >
         <LogOut className="h-5 w-5" />
       </button>

@@ -14,7 +14,7 @@ export const Checkbox = forwardRef<
 >(({ className = "", ...props }, ref) => (
   <CheckboxPrimitive.Root
     ref={ref}
-    className={`h-4 w-4 shrink-0 rounded border border-gray-300 transition-colors data-[state=checked]:border-tiffany data-[state=checked]:bg-tiffany focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tiffany/50 cursor-pointer ${className}`}
+    className={`h-4 w-4 shrink-0 rounded border border-gray-300 transition-colors data-[state=checked]:border-tiffany data-[state=checked]:bg-tiffany focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tiffany/50 cursor-pointer data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50 ${className}`}
     {...props}
   >
     <CheckboxPrimitive.Indicator className="flex items-center justify-center">

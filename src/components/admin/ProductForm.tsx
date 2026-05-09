@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { X as XIcon, ImagePlus, Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input, Textarea } from "../ui/input";
@@ -75,6 +75,8 @@ export function ProductForm({
   const [kept, setKept] = useState<ExistingImage[]>(existingImages);
   const [newImages, setNewImages] = useState<ImagePreview[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const previewUrlsRef = useRef<string[]>([]);
 
   const updateField = (
     field: keyof ProductFormData,
@@ -86,11 +88,11 @@ export function ProductForm({
   const handleFileSelect = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const files = Array.from(e.target.files ?? []);
-      const previews = files.map((file) => ({
-        id: crypto.randomUUID(),
-        file,
-        previewUrl: URL.createObjectURL(file),
-      }));
+      const previews = files.map((file) => {
+        const previewUrl = URL.createObjectURL(file);
+        previewUrlsRef.current.push(previewUrl);
+        return { id: crypto.randomUUID(), file, previewUrl };
+      });
       setNewImages((prev) => [...prev, ...previews]);
       e.target.value = "";
     },
@@ -99,9 +101,8 @@ export function ProductForm({
 
   useEffect(() => {
     return () => {
-      newImages.forEach((img) => URL.revokeObjectURL(img.previewUrl));
+      previewUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const removeExisting = (id: string) => {
@@ -118,6 +119,13 @@ export function ProductForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+
+    if (!formData.category) {
+      setError("Selecione uma categoria.");
+      return;
+    }
+
     setUploading(true);
 
     try {
@@ -134,8 +142,10 @@ export function ProductForm({
       onSubmit(formData, allImages);
       newImages.forEach((img) => URL.revokeObjectURL(img.previewUrl));
       onClose();
-    } catch (error) {
-      console.error("Submit error:", error);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Erro ao enviar o produto.";
+      setError(message);
     } finally {
       setUploading(false);
     }
@@ -259,7 +269,7 @@ export function ProductForm({
             <span className="mt-1 text-xs">Adicionar</span>
             <input
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp,image/avif"
               multiple
               className="sr-only"
               onChange={handleFileSelect}
@@ -278,6 +288,10 @@ export function ProductForm({
           Marcar como Novidade
         </Label>
       </div>
+
+      {error && (
+        <p className="text-sm text-red-500">{error}</p>
+      )}
 
       <Button
         type="submit"

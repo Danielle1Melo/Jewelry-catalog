@@ -46,10 +46,12 @@ export async function POST(request: NextRequest) {
             },
             (error, result) => {
               if (error) reject(error);
+              else if (!result)
+                reject(new Error("Cloudinary returned no result"));
               else
                 resolve({
-                  url: result!.secure_url,
-                  publicId: result!.public_id,
+                  url: result.secure_url,
+                  publicId: result.public_id,
                 });
             }
           );

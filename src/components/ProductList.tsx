@@ -50,7 +50,7 @@ function ProductRow({ product }: { product: Product }) {
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium text-title">{product.name}</p>
         <p className="text-xs text-description">
-          R${product.price} · {product.category}
+          {product.price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} · {product.category}
           {product.isNew && " · Novidade"}
         </p>
       </div>
@@ -79,7 +79,7 @@ export function ProductList() {
         <AddProductDialog />
       </div>
 
-      <ScrollArea.Root className="overflow-hidden rounded-xl bg-white shadow-sm">
+      <ScrollArea.Root className="max-h-[calc(100vh-12rem)] overflow-hidden rounded-xl bg-white shadow-sm">
         <ScrollArea.Viewport className="h-full w-full">
           {products.map((product, index) => (
             <div key={product.id}>

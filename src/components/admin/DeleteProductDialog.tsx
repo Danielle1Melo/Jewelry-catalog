@@ -30,7 +30,7 @@ export function DeleteProductDialog({ product }: DeleteProductDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" title="Excluir">
+        <Button variant="ghost" title="Excluir" aria-label="Excluir">
           <Trash2 className="h-4 w-4" />
         </Button>
       </DialogTrigger>
