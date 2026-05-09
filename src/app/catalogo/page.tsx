@@ -3,6 +3,8 @@
 import { Suspense, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { Header } from "@/components/storefront/Header";
 import { PriceFilter } from "@/components/storefront/PriceFilter";
 import earringsImg from "@/assets/earrings.png";
@@ -90,7 +92,13 @@ function CatalogoContent() {
   return (
     <main className="px-5 py-8">
       <div className="mx-auto max-w-7xl">
-        {/* Title */}
+        <Link
+          href="/"
+          className="mb-4 inline-flex items-center gap-1 text-sm font-medium text-description transition-colors hover:text-tiffany"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Voltar
+        </Link>
         <div className="mb-6">
           <h1 className="font-heading text-3xl font-bold text-title">
             {activeTab === "Todos" ? "Todos os Produtos" : activeTab}
@@ -100,7 +108,6 @@ function CatalogoContent() {
           </p>
         </div>
 
-        {/* Tabs */}
         <div className="relative mb-6">
           <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-6 bg-gradient-to-r from-white to-transparent" />
           <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-6 bg-gradient-to-l from-white to-transparent" />
@@ -122,7 +129,6 @@ function CatalogoContent() {
           </div>
         </div>
 
-        {/* Price filter */}
         <div className="mb-6">
           <PriceFilter
             min={PRICE_MIN}
@@ -133,8 +139,7 @@ function CatalogoContent() {
             onMaxChange={setMaxPrice}
           />
         </div>
-
-        {/* Products grid */}
+            
         {filtered.length > 0 ? (
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
             {filtered.map((product) => (
