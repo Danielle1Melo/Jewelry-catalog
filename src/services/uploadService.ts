@@ -14,12 +14,14 @@ export async function uploadImages(files: File[]): Promise<UploadedImage[]> {
 
   if (!res.ok) {
     let message = `Upload failed (${res.status} ${res.statusText})`;
-    try {
-      const errorData = await res.json();
-      if (errorData.error) message = errorData.error;
-    } catch {
-      const text = await res.text();
-      if (text) message = `${message}: ${text}`;
+    const raw = await res.text();
+    if (raw) {
+      try {
+        const errorData = JSON.parse(raw) as { error?: string };
+        if (errorData.error) message = errorData.error;
+      } catch {
+        message = `${message}: ${raw}`;
+      }
     }
     throw new Error(message);
   }
