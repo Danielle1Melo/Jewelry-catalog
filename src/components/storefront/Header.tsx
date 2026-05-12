@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Menu, X } from "lucide-react";
+import Link from "next/link";
+import { Search, Menu, X, ShoppingBag } from "lucide-react";
+import { useCart } from "@/context/CartContext";
 import { Logo } from "../Logo";
 
 const NAV_LINKS = [
@@ -12,6 +14,7 @@ const NAV_LINKS = [
 
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { totalItems } = useCart();
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-100">
@@ -31,6 +34,18 @@ export function Header() {
           >
             <Search className="h-5 w-5" />
           </button>
+          <Link
+            href="/carrinho"
+            aria-label="Carrinho"
+            className="relative text-title transition-colors hover:text-tiffany"
+          >
+            <ShoppingBag className="h-5 w-5" />
+            {totalItems > 0 && (
+              <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-tiffany text-[10px] font-bold text-white">
+                {totalItems > 9 ? "9+" : totalItems}
+              </span>
+            )}
+          </Link>
           <button
             type="button"
             aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}

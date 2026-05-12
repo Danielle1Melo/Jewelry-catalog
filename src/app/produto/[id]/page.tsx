@@ -4,9 +4,10 @@ import { useState } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, MessageCircle, Tag, Gift } from "lucide-react";
+import { ArrowLeft, MessageCircle, Tag, Gift, ShoppingBag, Check } from "lucide-react";
 import { Header } from "@/components/storefront/Header";
 import { Footer } from "@/components/storefront/Footer";
+import { useCart } from "@/context/CartContext";
 import earringsImg from "@/assets/earrings.png";
 
 import type { StaticImageData } from "next/image";
@@ -165,6 +166,8 @@ export default function ProdutoPage() {
   const product = allProducts.find((p) => p.id === productId);
 
   const [selectedImage, setSelectedImage] = useState(0);
+  const [added, setAdded] = useState(false);
+  const { addItem } = useCart();
 
   if (!product) {
     return (
@@ -199,7 +202,6 @@ export default function ProdutoPage() {
 
       <main className="px-5 py-6">
         <div className="mx-auto max-w-5xl">
-          {/* Back */}
           <Link
             href="/catalogo"
             className="mb-4 inline-flex items-center gap-1 text-sm font-medium text-description transition-colors hover:text-tiffany"
@@ -209,7 +211,6 @@ export default function ProdutoPage() {
           </Link>
 
           <div className="md:grid md:grid-cols-2 md:gap-10">
-            {/* Left — Images */}
             <div>
               <div className="relative aspect-square overflow-hidden rounded-xl bg-gray-100">
                 <Image
@@ -225,7 +226,6 @@ export default function ProdutoPage() {
                 )}
               </div>
 
-              {/* Thumbnails */}
               {product.images.length > 1 && (
                 <div className="mt-3 flex gap-2">
                   {product.images.map((img, i) => (
@@ -251,7 +251,6 @@ export default function ProdutoPage() {
               )}
             </div>
 
-            {/* Right — Info */}
             <div className="mt-6 md:mt-0">
               <span className="text-sm font-medium text-tiffany">
                 {product.category}
@@ -270,7 +269,6 @@ export default function ProdutoPage() {
                 {product.description}
               </p>
 
-              {/* Details tags */}
               <div className="mt-5 flex flex-wrap gap-2">
                 {product.details.map((detail, i) => (
                   <span
@@ -287,20 +285,50 @@ export default function ProdutoPage() {
                 ))}
               </div>
 
-              {/* WhatsApp CTA */}
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-tiffany py-3.5 text-sm font-semibold text-white transition-colors hover:bg-tiffany-dark"
-              >
-                <MessageCircle className="h-5 w-5" />
-                Gostei
-              </a>
+              <div className="mt-6 flex gap-3">
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex flex-1 items-center justify-center gap-2 rounded-full bg-tiffany py-3.5 text-sm font-semibold text-white transition-colors hover:bg-tiffany-dark"
+                >
+                  <MessageCircle className="h-5 w-5" />
+                  Gostei
+                </a>
+                <button
+                  type="button"
+                  onClick={() => {
+                    addItem({
+                      id: product.id,
+                      name: product.name,
+                      price: product.price,
+                      image: product.images[0],
+                    });
+                    setAdded(true);
+                    setTimeout(() => setAdded(false), 2000);
+                  }}
+                  className={`flex flex-1 items-center justify-center gap-2 rounded-full border-2 py-3.5 text-sm font-semibold transition-colors ${
+                    added
+                      ? "border-tiffany bg-tiffany text-white"
+                      : "border-tiffany bg-white text-tiffany hover:bg-tiffany-light"
+                  }`}
+                >
+                  {added ? (
+                    <>
+                      <Check className="h-5 w-5" />
+                      Adicionado!
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingBag className="h-5 w-5" />
+                      Adicionar ao carrinho
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* Related products */}
           {related.length > 0 && (
             <section className="mt-12">
               <h2 className="mb-4 font-heading text-xl font-bold text-title">
