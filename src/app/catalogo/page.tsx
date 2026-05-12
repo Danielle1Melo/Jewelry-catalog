@@ -40,7 +40,7 @@ const TABS = ["Todos", "Brincos", "Colares", "Braceletes", "Berloques", "Pulseir
 
 function ProductCard({ product }: { product: Product }) {
   return (
-    <a href="#" className="group">
+    <Link href={`/produto/${product.id}`} className="group">
       <div className="relative aspect-square overflow-hidden rounded-xl bg-gray-100">
         <Image
           src={product.image}
@@ -60,7 +60,7 @@ function ProductCard({ product }: { product: Product }) {
           {product.price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
         </p>
       </div>
-    </a>
+    </Link>
   );
 }
 
