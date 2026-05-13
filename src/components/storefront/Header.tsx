@@ -27,13 +27,13 @@ export function Header() {
         </div>
 
         <div className="flex items-center gap-4">
-          <button
-            type="button"
-            aria-label="Buscar"
+          <Link
+            href="/catalogo"
+            aria-label="Buscar no catálogo"
             className="text-title transition-colors hover:text-tiffany"
           >
             <Search className="h-5 w-5" />
-          </button>
+          </Link>
           <Link
             href="/carrinho"
             aria-label="Carrinho"
@@ -66,13 +66,13 @@ export function Header() {
           <ul className="space-y-3">
             {NAV_LINKS.map((link) => (
               <li key={link.label}>
-                <a
+                <Link
                   href={link.href}
                   onClick={() => setMenuOpen(false)}
                   className="block text-sm font-medium text-title transition-colors hover:text-tiffany"
                 >
                   {link.label}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>

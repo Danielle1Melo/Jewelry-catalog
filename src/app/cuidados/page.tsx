@@ -14,7 +14,8 @@ import {
 import { Header } from "@/components/storefront/Header";
 import { Footer } from "@/components/storefront/Footer";
 
-const WHATSAPP_NUMERO = "5569984556732";
+import { WHATSAPP_NUMERO } from "@/lib/constants";
+
 const WHATSAPP_MENSAGEM = "Olá, gostaria de saber mais sobre as peças da DM Pratas!";
 const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMERO}?text=${encodeURIComponent(WHATSAPP_MENSAGEM)}`;
 

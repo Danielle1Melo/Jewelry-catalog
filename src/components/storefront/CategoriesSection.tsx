@@ -10,7 +10,7 @@ const categories = [
   { name: "Berloques", image: earringsImg },
 ];
 
-const TABS = ["Todos", "Brincos", "Colares", "Braceletes", "Berloques", "Pulseiras Femininas", "Pulseiras Masculinas", "Colares Masculinos", "Pingentes", "Relógios", "Anéis", "Tornozeleiras"];
+import { CATEGORY_TABS } from "@/lib/constants";
 
 interface CategoriesSectionProps {
   activeTab: string;
@@ -34,7 +34,7 @@ export function CategoriesSection({ activeTab, onTabChange }: CategoriesSectionP
           <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-6 bg-gradient-to-r from-white to-transparent" />
           <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-6 bg-gradient-to-l from-white to-transparent" />
           <div className="flex gap-2 overflow-x-auto px-1 pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {TABS.map((tab) => (
+            {CATEGORY_TABS.map((tab) => (
               <button
                 key={tab}
                 type="button"

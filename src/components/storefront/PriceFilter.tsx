@@ -20,8 +20,9 @@ export function PriceFilter({
   onMaxChange,
 }: PriceFilterProps) {
   const range = max - min;
-  const leftPercent = ((minValue - min) / range) * 100;
-  const rightPercent = ((max - maxValue) / range) * 100;
+  const safeRange = range > 0 ? range : 1;
+  const leftPercent = range > 0 ? ((minValue - min) / safeRange) * 100 : 0;
+  const rightPercent = range > 0 ? ((max - maxValue) / safeRange) * 100 : 0;
 
   const handleMinChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -63,6 +64,7 @@ export function PriceFilter({
           min={min}
           max={max}
           value={minValue}
+          aria-label="Preço mínimo"
           onChange={handleMinChange}
           className="pointer-events-none absolute inset-0 w-full appearance-none bg-transparent [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-tiffany [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:shadow-sm [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-tiffany [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-sm"
         />
@@ -72,6 +74,7 @@ export function PriceFilter({
           min={min}
           max={max}
           value={maxValue}
+          aria-label="Preço máximo"
           onChange={handleMaxChange}
           className="pointer-events-none absolute inset-0 w-full appearance-none bg-transparent [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-tiffany [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:shadow-sm [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-tiffany [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-sm"
         />

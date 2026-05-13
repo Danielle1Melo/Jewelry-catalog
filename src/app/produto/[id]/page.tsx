@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -158,7 +158,7 @@ const allProducts: Product[] = [
   },
 ];
 
-const WHATSAPP_NUMERO = "5569984556732";
+import { WHATSAPP_NUMERO } from "@/lib/constants";
 
 export default function ProdutoPage() {
   const params = useParams();
@@ -167,7 +167,14 @@ export default function ProdutoPage() {
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [added, setAdded] = useState(false);
+  const addedTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
   const { addItem } = useCart();
+
+  useEffect(() => {
+    return () => {
+      if (addedTimerRef.current) clearTimeout(addedTimerRef.current);
+    };
+  }, []);
 
   if (!product) {
     return (
@@ -221,7 +228,7 @@ export default function ProdutoPage() {
                 />
                 {product.isNew && (
                   <span className="absolute left-3 top-3 rounded-full bg-tiffany px-3 py-1 text-xs font-bold uppercase tracking-wider text-white">
-                    New
+                    Novo
                   </span>
                 )}
               </div>
@@ -305,7 +312,8 @@ export default function ProdutoPage() {
                       image: product.images[0],
                     });
                     setAdded(true);
-                    setTimeout(() => setAdded(false), 2000);
+                    if (addedTimerRef.current) clearTimeout(addedTimerRef.current);
+                    addedTimerRef.current = setTimeout(() => setAdded(false), 2000);
                   }}
                   className={`flex flex-1 items-center justify-center gap-2 rounded-full border-2 py-3.5 text-sm font-semibold transition-colors ${
                     added
@@ -346,7 +354,7 @@ export default function ProdutoPage() {
                       />
                       {p.isNew && (
                         <span className="absolute left-2 top-2 rounded-full bg-tiffany px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
-                          New
+                          Novo
                         </span>
                       )}
                     </div>

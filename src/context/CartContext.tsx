@@ -104,7 +104,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   // Save cart to localStorage on change
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.items));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.items));
+    } catch {
+      // ignore storage errors (e.g. QuotaExceededError)
+    }
   }, [state.items]);
 
   const totalItems = state.items.reduce((sum, i) => sum + i.quantity, 0);

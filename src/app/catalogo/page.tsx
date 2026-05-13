@@ -2,6 +2,7 @@
 
 import { Suspense, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { CATEGORY_TABS } from "@/lib/constants";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
@@ -36,7 +37,6 @@ const allProducts: Product[] = [
   { id: 12, name: "Berloque Borboleta", price: 42, category: "Berloques", isNew: false, image: earringsImg },
 ];
 
-const TABS = ["Todos", "Brincos", "Colares", "Braceletes", "Berloques", "Pulseiras Femininas", "Pulseiras Masculinas", "Colares Masculinos", "Pingentes", "Relógios", "Anéis", "Tornozeleiras"];
 
 function ProductCard({ product }: { product: Product }) {
   return (
@@ -50,7 +50,7 @@ function ProductCard({ product }: { product: Product }) {
         />
         {product.isNew && (
           <span className="absolute left-2 top-2 rounded-full bg-tiffany px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
-            New
+            Novo
           </span>
         )}
       </div>
@@ -72,12 +72,11 @@ function CatalogoContent() {
   const PRICE_MIN = 0;
   const PRICE_MAX = 500;
 
-  const [activeTab, setActiveTab] = useState(categoriaParam);
+  const activeTab = categoriaParam;
   const [minPrice, setMinPrice] = useState(PRICE_MIN);
   const [maxPrice, setMaxPrice] = useState(PRICE_MAX);
 
   const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
     const params = new URLSearchParams();
     if (tab !== "Todos") params.set("categoria", tab);
     router.replace(`/catalogo${params.toString() ? `?${params}` : ""}`);
@@ -113,7 +112,7 @@ function CatalogoContent() {
           <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-6 bg-gradient-to-r from-white to-transparent" />
           <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-6 bg-gradient-to-l from-white to-transparent" />
           <div className="flex gap-2 overflow-x-auto px-1 pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {TABS.map((tab) => (
+            {CATEGORY_TABS.map((tab) => (
               <button
                 key={tab}
                 type="button"

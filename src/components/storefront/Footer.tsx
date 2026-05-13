@@ -53,8 +53,10 @@ export function Footer() {
                 <InstagramIcon className="h-5 w-5" />
               </a>
               <a
-                href="#"
+                href="https://www.facebook.com/"
                 aria-label="Facebook"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-white/70 transition-colors hover:text-white"
               >
                 <FacebookIcon className="h-5 w-5" />

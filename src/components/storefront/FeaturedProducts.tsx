@@ -35,7 +35,7 @@ function ProductCard({ product }: { product: Product }) {
         />
         {product.isNew && (
           <span className="absolute left-2 top-2 rounded-full bg-tiffany px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
-            New
+            Novo
           </span>
         )}
       </div>
@@ -82,7 +82,7 @@ export function FeaturedProducts({ activeTab }: FeaturedProductsProps) {
             href="/catalogo"
             className="inline-flex items-center gap-1 text-sm font-semibold text-tiffany transition-colors hover:text-tiffany-dark"
           >
-            View All
+            Ver todos
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>

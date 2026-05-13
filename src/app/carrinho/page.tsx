@@ -6,8 +6,7 @@ import { ArrowLeft, MessageCircle, Minus, Plus, Trash2, ShoppingBag } from "luci
 import { Header } from "@/components/storefront/Header";
 import { Footer } from "@/components/storefront/Footer";
 import { useCart } from "@/context/CartContext";
-
-const WHATSAPP_NUMERO = "5569984556732";
+import { WHATSAPP_NUMERO } from "@/lib/constants";
 
 export default function CarrinhoPage() {
   const { items, totalItems, totalPrice, updateQuantity, removeItem } = useCart();
