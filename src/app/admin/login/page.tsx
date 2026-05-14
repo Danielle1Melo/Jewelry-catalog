@@ -8,12 +8,34 @@ import { Logo } from "@/components/Logo";
 export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // TODO: implementar autenticação real
-    router.push("/admin");
+    setError("");
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error || "Erro ao fazer login.");
+        return;
+      }
+
+      router.push("/admin");
+    } catch {
+      setError("Erro de conexão. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -60,11 +82,16 @@ export default function LoginPage() {
             </button>
           </div>
 
+          {error && (
+            <p className="mb-4 text-center text-sm text-red-500">{error}</p>
+          )}
+
           <button
             type="submit"
-            className="w-full rounded-full bg-tiffany py-3 text-sm font-semibold text-white transition-colors hover:bg-tiffany-dark cursor-pointer"
+            disabled={loading}
+            className="w-full rounded-full bg-tiffany py-3 text-sm font-semibold text-white transition-colors hover:bg-tiffany-dark cursor-pointer disabled:opacity-50"
           >
-            Entrar
+            {loading ? "Entrando..." : "Entrar"}
           </button>
         </form>
       </div>
