@@ -8,7 +8,12 @@ export function AdminHeader() {
   const router = useRouter();
 
   async function handleLogout() {
-    await fetch("/api/admin/logout", { method: "POST" });
+    try {
+      const res = await fetch("/api/admin/logout", { method: "POST" });
+      if (!res.ok) return;
+    } catch {
+      return;
+    }
     router.push("/admin/login");
   }
 

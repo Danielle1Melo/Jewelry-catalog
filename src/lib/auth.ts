@@ -21,8 +21,10 @@ export async function createToken(): Promise<string> {
 
 export async function verifyToken(token: string): Promise<boolean> {
   try {
-    await jwtVerify(token, getSecret());
-    return true;
+    const { payload } = await jwtVerify(token, getSecret(), {
+      algorithms: ["HS256"],
+    });
+    return payload.role === "admin";
   } catch {
     return false;
   }
