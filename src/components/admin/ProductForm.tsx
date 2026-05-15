@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { X as XIcon, ImagePlus, Loader2 } from "lucide-react";
+import { X as XIcon, ImagePlus, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input, Textarea } from "../ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "../ui/select";
@@ -28,6 +28,18 @@ interface ImagePreview {
   id: string;
   file: File;
   previewUrl: string;
+}
+
+type ImageItem =
+  | { type: "existing"; data: ExistingImage }
+  | { type: "new"; data: ImagePreview };
+
+function getItemKey(item: ImageItem) {
+  return item.type === "existing" ? `e-${item.data.id}` : `n-${item.data.id}`;
+}
+
+function getItemSrc(item: ImageItem) {
+  return item.type === "existing" ? item.data.url : item.data.previewUrl;
 }
 
 interface Category {
@@ -62,8 +74,9 @@ export function ProductForm({
   const [formData, setFormData] = useState<ProductFormData>(
     initialData ?? emptyFormData
   );
-  const [kept, setKept] = useState<ExistingImage[]>(existingImages);
-  const [newImages, setNewImages] = useState<ImagePreview[]>([]);
+  const [images, setImages] = useState<ImageItem[]>(
+    existingImages.map((img) => ({ type: "existing", data: img }))
+  );
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -86,12 +99,15 @@ export function ProductForm({
   const handleFileSelect = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const files = Array.from(e.target.files ?? []);
-      const previews = files.map((file) => {
+      const newItems: ImageItem[] = files.map((file) => {
         const previewUrl = URL.createObjectURL(file);
         previewUrlsRef.current.push(previewUrl);
-        return { id: crypto.randomUUID(), file, previewUrl };
+        return {
+          type: "new",
+          data: { id: crypto.randomUUID(), file, previewUrl },
+        };
       });
-      setNewImages((prev) => [...prev, ...previews]);
+      setImages((prev) => [...prev, ...newItems]);
       e.target.value = "";
     },
     []
@@ -103,15 +119,21 @@ export function ProductForm({
     };
   }, []);
 
-  const removeExisting = (id: number) => {
-    setKept((prev) => prev.filter((img) => img.id !== id));
-  };
+  const removeImage = useCallback((index: number) => {
+    setImages((prev) => {
+      const item = prev[index];
+      if (item.type === "new") URL.revokeObjectURL(item.data.previewUrl);
+      return prev.filter((_, i) => i !== index);
+    });
+  }, []);
 
-  const removeNew = useCallback((id: string) => {
-    setNewImages((prev) => {
-      const target = prev.find((img) => img.id === id);
-      if (target) URL.revokeObjectURL(target.previewUrl);
-      return prev.filter((img) => img.id !== id);
+  const moveImage = useCallback((index: number, direction: -1 | 1) => {
+    setImages((prev) => {
+      const target = index + direction;
+      if (target < 0 || target >= prev.length) return prev;
+      const next = [...prev];
+      [next[index], next[target]] = [next[target], next[index]];
+      return next;
     });
   }, []);
 
@@ -127,18 +149,32 @@ export function ProductForm({
     setUploading(true);
 
     try {
+      // Upload new files
+      const newFiles = images
+        .filter((item): item is ImageItem & { type: "new" } => item.type === "new")
+        .map((item) => item.data);
+
       const uploaded =
-        newImages.length > 0
-          ? await uploadImages(newImages.map((img) => img.file))
+        newFiles.length > 0
+          ? await uploadImages(newFiles.map((f) => f.file))
           : [];
 
-      const allImages: UploadedImage[] = [
-        ...kept.map((img) => ({ url: img.url, publicId: img.publicId })),
-        ...uploaded,
-      ];
+      // Build uploadedMap: preview id → uploaded result
+      const uploadedMap = new Map<string, UploadedImage>();
+      newFiles.forEach((f, i) => uploadedMap.set(f.id, uploaded[i]));
+
+      // Build final ordered images array
+      const allImages: UploadedImage[] = images.map((item) => {
+        if (item.type === "existing") {
+          return { url: item.data.url, publicId: item.data.publicId };
+        }
+        return uploadedMap.get(item.data.id)!;
+      });
 
       await onSubmit(formData, allImages);
-      newImages.forEach((img) => URL.revokeObjectURL(img.previewUrl));
+      images.forEach((item) => {
+        if (item.type === "new") URL.revokeObjectURL(item.data.previewUrl);
+      });
       onClose();
     } catch (err) {
       const message =
@@ -217,48 +253,57 @@ export function ProductForm({
         />
       </div>
 
-      {/* Imagens */}
       <div className="space-y-1.5">
-        <Label>Imagens</Label>
+        <Label>Imagens <span className="font-normal text-description">(primeira = capa)</span></Label>
 
-        {/* Existing images (URLs) */}
-        {kept.map((img) => (
-          <div
-            key={img.id}
-            className="flex items-center gap-2 rounded-md border border-gray-200 px-3 py-2"
-          >
-            <p className="min-w-0 flex-1 truncate text-sm text-description">
-              {img.url}
-            </p>
-            <button
-              type="button"
-              onClick={() => removeExisting(img.id)}
-              className="shrink-0 rounded-md p-1 text-description transition-colors hover:bg-gray-100 hover:text-title cursor-pointer"
-            >
-              <XIcon className="h-4 w-4" />
-            </button>
-          </div>
-        ))}
-
-        {/* New image previews */}
         <div className="grid grid-cols-3 gap-2">
-          {newImages.map((img) => (
+          {images.map((item, index) => (
             <div
-              key={img.id}
-              className="group relative aspect-square overflow-hidden rounded-md border border-gray-200"
+              key={getItemKey(item)}
+              className={`group relative aspect-square overflow-hidden rounded-md border-2 ${
+                index === 0 ? "border-tiffany" : "border-gray-200"
+              }`}
             >
               <img
-                src={img.previewUrl}
-                alt="Preview"
+                src={getItemSrc(item)}
+                alt={index === 0 ? "Capa" : `Imagem ${index + 1}`}
                 className="h-full w-full object-cover"
               />
+
+              {index === 0 && (
+                <span className="absolute left-1 bottom-1 rounded bg-tiffany px-1.5 py-0.5 text-[10px] font-bold text-white">
+                  Capa
+                </span>
+              )}
+
               <button
                 type="button"
-                onClick={() => removeNew(img.id)}
+                onClick={() => removeImage(index)}
                 className="absolute right-1 top-1 rounded-full bg-black/50 p-0.5 text-white opacity-0 transition-opacity group-hover:opacity-100 cursor-pointer"
               >
                 <XIcon className="h-3 w-3" />
               </button>
+
+              <div className="absolute bottom-1 right-1 flex gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+                {index > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => moveImage(index, -1)}
+                    className="rounded bg-black/50 p-0.5 text-white cursor-pointer hover:bg-black/70"
+                  >
+                    <ChevronLeft className="h-3 w-3" />
+                  </button>
+                )}
+                {index < images.length - 1 && (
+                  <button
+                    type="button"
+                    onClick={() => moveImage(index, 1)}
+                    className="rounded bg-black/50 p-0.5 text-white cursor-pointer hover:bg-black/70"
+                  >
+                    <ChevronRight className="h-3 w-3" />
+                  </button>
+                )}
+              </div>
             </div>
           ))}
 

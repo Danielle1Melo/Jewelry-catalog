@@ -4,11 +4,13 @@ import { prisma } from "@/lib/prisma";
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const category = searchParams.get("category");
+  const isNew = searchParams.get("new");
 
   const products = await prisma.product.findMany({
-    where: category
-      ? { category: { name: category } }
-      : undefined,
+    where: {
+      ...(category && { category: { name: category } }),
+      ...(isNew === "true" && { isNew: true }),
+    },
     include: { images: true, category: true },
     orderBy: { createdAt: "desc" },
   });

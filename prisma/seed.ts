@@ -12,17 +12,17 @@ const prisma = new PrismaClient({ adapter });
 const PLACEHOLDER = "https://res.cloudinary.com/demo/image/upload/v1/samples/ecommerce";
 
 const CATEGORIES = [
-  { name: "Brincos", image: `${PLACEHOLDER}/jewelry-earrings` },
-  { name: "Colares", image: `${PLACEHOLDER}/jewelry-ring` },
-  { name: "Pulseiras Femininas", image: `${PLACEHOLDER}/accessories-bag` },
-  { name: "Pulseiras Masculinas", image: `${PLACEHOLDER}/leather-bag-gray` },
-  { name: "Colares Masculinos", image: `${PLACEHOLDER}/jewelry-ring` },
-  { name: "Pingentes", image: `${PLACEHOLDER}/jewelry-earrings` },
-  { name: "Berloques", image: `${PLACEHOLDER}/accessories-bag` },
-  { name: "Braceletes", image: `${PLACEHOLDER}/leather-bag-gray` },
-  { name: "Relógios", image: `${PLACEHOLDER}/analog-classic` },
-  { name: "Anéis", image: `${PLACEHOLDER}/jewelry-ring` },
-  { name: "Tornozeleiras", image: `${PLACEHOLDER}/jewelry-earrings` },
+  "Brincos",
+  "Colares",
+  "Pulseiras Femininas",
+  "Pulseiras Masculinas",
+  "Colares Masculinos",
+  "Pingentes",
+  "Berloques",
+  "Braceletes",
+  "Relógios",
+  "Anéis",
+  "Tornozeleiras",
 ];
 
 const MOCK_PRODUCTS = [
@@ -89,11 +89,11 @@ const MOCK_PRODUCTS = [
 ];
 
 async function main() {
-  for (const cat of CATEGORIES) {
+  for (const name of CATEGORIES) {
     await prisma.category.upsert({
-      where: { name: cat.name },
-      update: { image: cat.image },
-      create: { name: cat.name, image: cat.image },
+      where: { name },
+      update: {},
+      create: { name },
     });
   }
   console.log(`Seeded ${CATEGORIES.length} categories`);

@@ -37,7 +37,6 @@ export async function PUT(
     where: { id: categoryId },
     data: {
       ...(body.name !== undefined && { name: body.name.trim() }),
-      ...(body.image !== undefined && { image: body.image }),
     },
   });
 

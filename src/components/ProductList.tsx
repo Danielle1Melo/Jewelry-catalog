@@ -6,6 +6,7 @@ import * as ScrollArea from "@radix-ui/react-scroll-area";
 import * as Separator from "@radix-ui/react-separator";
 import Image from "next/image";
 import { AddProductDialog } from "./admin/AddProductDialog";
+import { AddCategoryDialog } from "./admin/AddCategoryDialog";
 import { EditProductDialog } from "./admin/EditProductDialog";
 import { Loader2 } from "lucide-react";
 
@@ -88,7 +89,7 @@ export function ProductList() {
 
   return (
     <main className="px-5 py-6">
-      <div className="mb-5 flex items-center justify-between">
+      <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-2xl font-bold text-title">Produtos</h2>
           <p className="text-sm text-description">
@@ -96,7 +97,10 @@ export function ProductList() {
           </p>
         </div>
 
-        <AddProductDialog onSaved={fetchProducts} />
+        <div className="flex gap-2">
+          <AddProductDialog onSaved={fetchProducts} />
+          <AddCategoryDialog />
+        </div>
       </div>
 
       {loading ? (

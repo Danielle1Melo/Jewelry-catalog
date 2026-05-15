@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 interface Product {
   id: number;
@@ -28,11 +28,9 @@ function ProductCard({ product }: { product: Product }) {
             className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
         )}
-        {product.isNew && (
-          <span className="absolute left-2 top-2 rounded-full bg-tiffany px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
-            Novo
-          </span>
-        )}
+        <span className="absolute left-2 top-2 rounded-full bg-tiffany px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+          Novo
+        </span>
       </div>
       <div className="mt-2">
         <p className="truncate text-sm font-medium text-title">{product.name}</p>
@@ -53,13 +51,12 @@ export function FeaturedProducts({ activeTab }: FeaturedProductsProps) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const url =
-      activeTab === "Todos"
-        ? "/api/products"
-        : `/api/products?category=${encodeURIComponent(activeTab)}`;
+    const params = new URLSearchParams();
+    params.set("new", "true");
+    if (activeTab !== "Todos") params.set("category", activeTab);
 
     setLoading(true);
-    fetch(url)
+    fetch(`/api/products?${params}`)
       .then((res) => res.json())
       .then(setProducts)
       .catch(() => {})
@@ -67,14 +64,14 @@ export function FeaturedProducts({ activeTab }: FeaturedProductsProps) {
   }, [activeTab]);
 
   return (
-    <section id="destaques" className="px-5 py-10">
+    <section className="px-5 pb-10">
       <div className="mx-auto max-w-7xl">
         <div className="mb-6 text-center">
           <span className="text-xs font-semibold tracking-widest text-tiffany uppercase">
             Selecionado para você
           </span>
           <h2 className="mt-1 font-heading text-2xl font-bold text-title">
-            Peças em destaque
+            Novidades
           </h2>
         </div>
 
@@ -82,23 +79,18 @@ export function FeaturedProducts({ activeTab }: FeaturedProductsProps) {
           <div className="flex justify-center py-16">
             <Loader2 className="h-6 w-6 animate-spin text-tiffany" />
           </div>
-        ) : (
+        ) : products.length > 0 ? (
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
             {products.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
+        ) : (
+          <div className="py-12 text-center">
+            <p className="text-description">Nenhuma novidade nesta categoria.</p>
+          </div>
         )}
 
-        <div className="mt-6 text-center">
-          <Link
-            href="/catalogo"
-            className="inline-flex items-center gap-1 text-sm font-semibold text-tiffany transition-colors hover:text-tiffany-dark"
-          >
-            Ver todos
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
       </div>
     </section>
   );
