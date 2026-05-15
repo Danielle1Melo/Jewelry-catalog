@@ -1,38 +1,33 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import earringsImg from "@/assets/earrings.png";
-
-import type { StaticImageData } from "next/image";
+import { ArrowRight, Loader2 } from "lucide-react";
 
 interface Product {
   id: number;
   name: string;
   price: number;
-  category: string;
   isNew: boolean;
-  image: StaticImageData;
+  category: { id: number; name: string };
+  images: { url: string }[];
 }
 
-const featuredProducts: Product[] = [
-  { id: 1, name: "Colar Lua Crescente", price: 89, category: "Colares", isNew: true, image: earringsImg },
-  { id: 2, name: "Brincos Aria Drop", price: 65, category: "Brincos", isNew: true, image: earringsImg },
-  { id: 3, name: "Pulseira Serpente", price: 120, category: "Braceletes", isNew: true, image: earringsImg },
-  { id: 4, name: "Amuleto Estrela Celeste", price: 45, category: "Berloques", isNew: false, image: earringsImg },
-  { id: 5, name: "Brinco Ponto de Luz", price: 48, category: "Brincos", isNew: true, image: earringsImg },
-  { id: 6, name: "Colar de Pérolas", price: 135, category: "Colares", isNew: false, image: earringsImg },
-];
-
 function ProductCard({ product }: { product: Product }) {
+  const imageUrl = product.images[0]?.url;
+
   return (
     <Link href={`/produto/${product.id}`} className="group">
       <div className="relative aspect-square overflow-hidden rounded-xl bg-gray-100">
-        <Image
-          src={product.image}
-          alt={product.name}
-          fill
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
-        />
+        {imageUrl && (
+          <Image
+            src={imageUrl}
+            alt={product.name}
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        )}
         {product.isNew && (
           <span className="absolute left-2 top-2 rounded-full bg-tiffany px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
             Novo
@@ -54,10 +49,22 @@ interface FeaturedProductsProps {
 }
 
 export function FeaturedProducts({ activeTab }: FeaturedProductsProps) {
-  const filtered =
-    activeTab === "Todos"
-      ? featuredProducts
-      : featuredProducts.filter((p) => p.category === activeTab);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const url =
+      activeTab === "Todos"
+        ? "/api/products"
+        : `/api/products?category=${encodeURIComponent(activeTab)}`;
+
+    setLoading(true);
+    fetch(url)
+      .then((res) => res.json())
+      .then(setProducts)
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [activeTab]);
 
   return (
     <section id="destaques" className="px-5 py-10">
@@ -71,11 +78,17 @@ export function FeaturedProducts({ activeTab }: FeaturedProductsProps) {
           </h2>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-          {filtered.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="flex justify-center py-16">
+            <Loader2 className="h-6 w-6 animate-spin text-tiffany" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
 
         <div className="mt-6 text-center">
           <Link

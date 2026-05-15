@@ -5,21 +5,6 @@ import { X as XIcon, ImagePlus, Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input, Textarea } from "../ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "../ui/select";
-
-// TODO: buscar da API futuramente
-const CATEGORIES = [
-  "Brincos",
-  "Colares",
-  "Pulseiras Femininas",
-  "Pulseiras Masculinas",
-  "Colares Masculinos",
-  "Pingentes",
-  "Berloques",
-  "Braceletes",
-  "Relógios",
-  "Anéis",
-  "Tornozeleiras",
-];
 import { Label } from "../ui/label";
 import { Checkbox } from "../ui/checkbox";
 import { uploadImages, type UploadedImage } from "@/services/uploadService";
@@ -27,14 +12,14 @@ import { uploadImages, type UploadedImage } from "@/services/uploadService";
 export interface ProductFormData {
   name: string;
   price: string;
-  category: string;
+  categoryId: number | null;
   description: string;
   sizeDetails: string;
   isNew: boolean;
 }
 
 export interface ExistingImage {
-  id: string;
+  id: number;
   url: string;
   publicId: string;
 }
@@ -45,18 +30,23 @@ interface ImagePreview {
   previewUrl: string;
 }
 
+interface Category {
+  id: number;
+  name: string;
+}
+
 interface ProductFormProps {
   initialData?: ProductFormData;
   existingImages?: ExistingImage[];
   submitLabel: string;
-  onSubmit: (data: ProductFormData, images: UploadedImage[]) => void;
+  onSubmit: (data: ProductFormData, images: UploadedImage[]) => void | Promise<void>;
   onClose: () => void;
 }
 
 const emptyFormData: ProductFormData = {
   name: "",
   price: "",
-  category: "",
+  categoryId: null,
   description: "",
   sizeDetails: "",
   isNew: false,
@@ -76,11 +66,19 @@ export function ProductForm({
   const [newImages, setNewImages] = useState<ImagePreview[]>([]);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
   const previewUrlsRef = useRef<string[]>([]);
+
+  useEffect(() => {
+    fetch("/api/categories")
+      .then((res) => res.json())
+      .then(setCategories)
+      .catch(() => {});
+  }, []);
 
   const updateField = (
     field: keyof ProductFormData,
-    value: string | boolean
+    value: string | boolean | number | null
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
@@ -105,7 +103,7 @@ export function ProductForm({
     };
   }, []);
 
-  const removeExisting = (id: string) => {
+  const removeExisting = (id: number) => {
     setKept((prev) => prev.filter((img) => img.id !== id));
   };
 
@@ -121,7 +119,7 @@ export function ProductForm({
     e.preventDefault();
     setError(null);
 
-    if (!formData.category) {
+    if (!formData.categoryId) {
       setError("Selecione uma categoria.");
       return;
     }
@@ -139,7 +137,7 @@ export function ProductForm({
         ...uploaded,
       ];
 
-      onSubmit(formData, allImages);
+      await onSubmit(formData, allImages);
       newImages.forEach((img) => URL.revokeObjectURL(img.previewUrl));
       onClose();
     } catch (err) {
@@ -181,17 +179,17 @@ export function ProductForm({
         <div className="space-y-1.5">
           <Label>Categoria</Label>
           <Select
-            value={formData.category || undefined}
-            onValueChange={(value) => updateField("category", value)}
+            value={formData.categoryId ? String(formData.categoryId) : undefined}
+            onValueChange={(value) => updateField("categoryId", Number(value))}
             required
           >
             <SelectTrigger>
               <SelectValue placeholder="Selecione" />
             </SelectTrigger>
             <SelectContent>
-              {CATEGORIES.map((cat) => (
-                <SelectItem key={cat} value={cat}>
-                  {cat}
+              {categories.map((cat) => (
+                <SelectItem key={cat.id} value={String(cat.id)}>
+                  {cat.name}
                 </SelectItem>
               ))}
             </SelectContent>

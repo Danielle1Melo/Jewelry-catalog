@@ -5,12 +5,12 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
 }
 
 model Category {
   id       Int       @id @default(autoincrement())
   name     String    @unique
+  image    String    @default("")
   products Product[]
 }
 

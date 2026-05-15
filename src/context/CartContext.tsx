@@ -7,13 +7,11 @@ import {
   useEffect,
   type ReactNode,
 } from "react";
-import type { StaticImageData } from "next/image";
-
 export interface CartItem {
   id: number;
   name: string;
   price: number;
-  image: StaticImageData;
+  image: string;
   quantity: number;
 }
 

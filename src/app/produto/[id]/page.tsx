@@ -4,171 +4,63 @@ import { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, MessageCircle, Tag, Gift, ShoppingBag, Check } from "lucide-react";
+import { ArrowLeft, MessageCircle, Tag, Gift, ShoppingBag, Check, Loader2 } from "lucide-react";
 import { Header } from "@/components/storefront/Header";
 import { Footer } from "@/components/storefront/Footer";
 import { useCart } from "@/context/CartContext";
-import earringsImg from "@/assets/earrings.png";
+import { WHATSAPP_NUMERO } from "@/lib/constants";
 
-import type { StaticImageData } from "next/image";
+interface ProductImage {
+  id: number;
+  url: string;
+}
 
 interface Product {
   id: number;
   name: string;
   price: number;
-  category: string;
   description: string;
-  details: string[];
+  sizeDetails: string;
   isNew: boolean;
-  images: StaticImageData[];
+  category: { id: number; name: string };
+  images: ProductImage[];
 }
-
-const allProducts: Product[] = [
-  {
-    id: 1,
-    name: "Colar Lua Crescente",
-    price: 89,
-    category: "Colares",
-    description:
-      "Um colar delicado com pingente de lua crescente em prata 925. Perfeito para o uso diário, trazendo elegância e sofisticação ao seu visual.",
-    details: ["45cm", "Prata 925", "Caixa de presente incluída"],
-    isNew: true,
-    images: [earringsImg, earringsImg, earringsImg],
-  },
-  {
-    id: 2,
-    name: "Brincos Aria Drop",
-    price: 65,
-    category: "Brincos",
-    description:
-      "Brincos pendentes com design moderno e acabamento polido em prata 925. Leves e confortáveis para uso prolongado.",
-    details: ["3cm", "Prata 925", "Caixa de presente incluída"],
-    isNew: true,
-    images: [earringsImg, earringsImg],
-  },
-  {
-    id: 3,
-    name: "Pulseira Serpente",
-    price: 120,
-    category: "Braceletes",
-    description:
-      "Pulseira com design de serpente em prata 925 com acabamento oxidado. Uma peça marcante que combina ousadia e elegância.",
-    details: ["18cm", "Prata 925", "Caixa de presente incluída"],
-    isNew: true,
-    images: [earringsImg, earringsImg],
-  },
-  {
-    id: 4,
-    name: "Amuleto Estrela Celeste",
-    price: 45,
-    category: "Berloques",
-    description:
-      "Berloque em formato de estrela com detalhes em zircônia. Compatível com pulseiras de berloque padrão.",
-    details: ["1.5cm", "Prata 925", "Caixa de presente incluída"],
-    isNew: false,
-    images: [earringsImg, earringsImg],
-  },
-  {
-    id: 5,
-    name: "Brinco Ponto de Luz",
-    price: 48,
-    category: "Brincos",
-    description:
-      "Brinco solitário com zircônia cravejada em prata 925. Discreto e brilhante, ideal para qualquer ocasião.",
-    details: ["0.5cm", "Prata 925", "Caixa de presente incluída"],
-    isNew: true,
-    images: [earringsImg, earringsImg],
-  },
-  {
-    id: 6,
-    name: "Colar de Pérolas",
-    price: 135,
-    category: "Colares",
-    description:
-      "Colar com pérolas de água doce e corrente em prata 925. Uma peça clássica e atemporal que eleva qualquer produção.",
-    details: ["50cm", "Prata 925", "Caixa de presente incluída"],
-    isNew: false,
-    images: [earringsImg, earringsImg],
-  },
-  {
-    id: 7,
-    name: "Pulseira Trançada",
-    price: 95,
-    category: "Braceletes",
-    description:
-      "Pulseira trançada em prata 925 com fecho de segurança. Design artesanal que combina tradição e modernidade.",
-    details: ["19cm", "Prata 925", "Caixa de presente incluída"],
-    isNew: false,
-    images: [earringsImg, earringsImg],
-  },
-  {
-    id: 8,
-    name: "Berloque Coração",
-    price: 55,
-    category: "Berloques",
-    description:
-      "Berloque em formato de coração com acabamento polido em prata 925. Presente perfeito para quem você ama.",
-    details: ["1.2cm", "Prata 925", "Caixa de presente incluída"],
-    isNew: false,
-    images: [earringsImg, earringsImg],
-  },
-  {
-    id: 9,
-    name: "Colar Cascata",
-    price: 155,
-    category: "Colares",
-    description:
-      "Um colar deslumbrante de várias camadas, com três correntes delicadas de comprimentos diferentes, cada uma adornada com pingentes de prata exclusivos. Esta peça marcante elimina a necessidade de usar vários colares em camadas.",
-    details: ["60cm", "Prata 925", "Caixa de presente incluída"],
-    isNew: true,
-    images: [earringsImg, earringsImg, earringsImg],
-  },
-  {
-    id: 10,
-    name: "Brinco Argola Infinito",
-    price: 78,
-    category: "Brincos",
-    description:
-      "Brinco de argola com detalhe de símbolo do infinito em prata 925. Elegante e versátil para o dia a dia.",
-    details: ["2.5cm", "Prata 925", "Caixa de presente incluída"],
-    isNew: false,
-    images: [earringsImg, earringsImg],
-  },
-  {
-    id: 11,
-    name: "Pulseira Ondas",
-    price: 110,
-    category: "Braceletes",
-    description:
-      "Pulseira com design de ondas em prata 925. Inspirada no mar, traz movimento e leveza ao seu pulso.",
-    details: ["18cm", "Prata 925", "Caixa de presente incluída"],
-    isNew: true,
-    images: [earringsImg, earringsImg],
-  },
-  {
-    id: 12,
-    name: "Berloque Borboleta",
-    price: 42,
-    category: "Berloques",
-    description:
-      "Berloque delicado em formato de borboleta com detalhes em zircônia. Simboliza transformação e liberdade.",
-    details: ["1.3cm", "Prata 925", "Caixa de presente incluída"],
-    isNew: false,
-    images: [earringsImg, earringsImg],
-  },
-];
-
-import { WHATSAPP_NUMERO } from "@/lib/constants";
 
 export default function ProdutoPage() {
   const params = useParams();
   const productId = Number(params.id);
-  const product = allProducts.find((p) => p.id === productId);
 
+  const [product, setProduct] = useState<Product | null>(null);
+  const [related, setRelated] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
   const [added, setAdded] = useState(false);
   const addedTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
   const { addItem } = useCart();
+
+  useEffect(() => {
+    setLoading(true);
+    setNotFound(false);
+    setSelectedImage(0);
+
+    fetch(`/api/products/${productId}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("not found");
+        return res.json();
+      })
+      .then((data: Product) => {
+        setProduct(data);
+        // Fetch related products from same category
+        return fetch(`/api/products?category=${encodeURIComponent(data.category.name)}`);
+      })
+      .then((res) => res.json())
+      .then((products: Product[]) => {
+        setRelated(products.filter((p) => p.id !== productId).slice(0, 4));
+      })
+      .catch(() => setNotFound(true))
+      .finally(() => setLoading(false));
+  }, [productId]);
 
   useEffect(() => {
     return () => {
@@ -176,7 +68,19 @@ export default function ProdutoPage() {
     };
   }, []);
 
-  if (!product) {
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Header />
+        <div className="flex justify-center py-16">
+          <Loader2 className="h-6 w-6 animate-spin text-tiffany" />
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (notFound || !product) {
     return (
       <div className="min-h-screen bg-white">
         <Header />
@@ -199,9 +103,9 @@ export default function ProdutoPage() {
   );
   const whatsappUrl = `https://wa.me/${WHATSAPP_NUMERO}?text=${whatsappMsg}`;
 
-  const related = allProducts
-    .filter((p) => p.category === product.category && p.id !== product.id)
-    .slice(0, 4);
+  const details = product.sizeDetails
+    ? product.sizeDetails.split(",").map((d) => d.trim()).filter(Boolean)
+    : [];
 
   return (
     <div className="min-h-screen bg-white">
@@ -220,12 +124,14 @@ export default function ProdutoPage() {
           <div className="md:grid md:grid-cols-2 md:gap-10">
             <div>
               <div className="relative aspect-square overflow-hidden rounded-xl bg-gray-100">
-                <Image
-                  src={product.images[selectedImage]}
-                  alt={product.name}
-                  fill
-                  className="object-cover"
-                />
+                {product.images[selectedImage] && (
+                  <Image
+                    src={product.images[selectedImage].url}
+                    alt={product.name}
+                    fill
+                    className="object-cover"
+                  />
+                )}
                 {product.isNew && (
                   <span className="absolute left-3 top-3 rounded-full bg-tiffany px-3 py-1 text-xs font-bold uppercase tracking-wider text-white">
                     Novo
@@ -237,7 +143,7 @@ export default function ProdutoPage() {
                 <div className="mt-3 flex gap-2">
                   {product.images.map((img, i) => (
                     <button
-                      key={i}
+                      key={img.id}
                       type="button"
                       onClick={() => setSelectedImage(i)}
                       className={`relative h-16 w-16 overflow-hidden rounded-lg border-2 transition-colors ${
@@ -247,7 +153,7 @@ export default function ProdutoPage() {
                       }`}
                     >
                       <Image
-                        src={img}
+                        src={img.url}
                         alt={`${product.name} - imagem ${i + 1}`}
                         fill
                         className="object-cover"
@@ -260,7 +166,7 @@ export default function ProdutoPage() {
 
             <div className="mt-6 md:mt-0">
               <span className="text-sm font-medium text-tiffany">
-                {product.category}
+                {product.category.name}
               </span>
               <h1 className="mt-1 font-heading text-2xl font-bold text-title">
                 {product.name}
@@ -276,21 +182,23 @@ export default function ProdutoPage() {
                 {product.description}
               </p>
 
-              <div className="mt-5 flex flex-wrap gap-2">
-                {product.details.map((detail, i) => (
-                  <span
-                    key={i}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 px-4 py-2 text-sm text-title"
-                  >
-                    {i === product.details.length - 1 ? (
-                      <Gift className="h-4 w-4 text-tiffany" />
-                    ) : (
-                      <Tag className="h-4 w-4 text-tiffany" />
-                    )}
-                    {detail}
-                  </span>
-                ))}
-              </div>
+              {details.length > 0 && (
+                <div className="mt-5 flex flex-wrap gap-2">
+                  {details.map((detail, i) => (
+                    <span
+                      key={i}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 px-4 py-2 text-sm text-title"
+                    >
+                      {i === details.length - 1 ? (
+                        <Gift className="h-4 w-4 text-tiffany" />
+                      ) : (
+                        <Tag className="h-4 w-4 text-tiffany" />
+                      )}
+                      {detail}
+                    </span>
+                  ))}
+                </div>
+              )}
 
               <div className="mt-6 flex gap-3">
                 <a
@@ -309,7 +217,7 @@ export default function ProdutoPage() {
                       id: product.id,
                       name: product.name,
                       price: product.price,
-                      image: product.images[0],
+                      image: product.images[0]?.url ?? "",
                     });
                     setAdded(true);
                     if (addedTimerRef.current) clearTimeout(addedTimerRef.current);
@@ -346,12 +254,14 @@ export default function ProdutoPage() {
                 {related.map((p) => (
                   <Link key={p.id} href={`/produto/${p.id}`} className="group">
                     <div className="relative aspect-square overflow-hidden rounded-xl bg-gray-100">
-                      <Image
-                        src={p.images[0]}
-                        alt={p.name}
-                        fill
-                        className="object-cover transition-transform duration-300 group-hover:scale-105"
-                      />
+                      {p.images[0] && (
+                        <Image
+                          src={p.images[0].url}
+                          alt={p.name}
+                          fill
+                          className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                      )}
                       {p.isNew && (
                         <span className="absolute left-2 top-2 rounded-full bg-tiffany px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
                           Novo

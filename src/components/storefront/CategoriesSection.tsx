@@ -1,16 +1,15 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
-import earringsImg from "@/assets/earrings.png";
 
-const categories = [
-  { name: "Brincos", image: earringsImg },
-  { name: "Colares", image: earringsImg },
-  { name: "Braceletes", image: earringsImg },
-  { name: "Berloques", image: earringsImg },
-];
-
-import { CATEGORY_TABS } from "@/lib/constants";
+interface Category {
+  id: number;
+  name: string;
+  image: string;
+}
 
 interface CategoriesSectionProps {
   activeTab: string;
@@ -18,6 +17,18 @@ interface CategoriesSectionProps {
 }
 
 export function CategoriesSection({ activeTab, onTabChange }: CategoriesSectionProps) {
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    fetch("/api/categories")
+      .then((res) => res.json())
+      .then(setCategories)
+      .catch(() => {});
+  }, []);
+
+  const tabs = ["Todos", ...categories.map((c) => c.name)];
+  const cards = categories.filter((c) => c.image).slice(0, 4);
+
   return (
     <section id="categorias" className="px-5 py-10">
       <div className="mx-auto max-w-7xl">
@@ -34,7 +45,7 @@ export function CategoriesSection({ activeTab, onTabChange }: CategoriesSectionP
           <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-6 bg-gradient-to-r from-white to-transparent" />
           <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-6 bg-gradient-to-l from-white to-transparent" />
           <div className="flex gap-2 overflow-x-auto px-1 pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {CATEGORY_TABS.map((tab) => (
+            {tabs.map((tab) => (
               <button
                 key={tab}
                 type="button"
@@ -52,13 +63,13 @@ export function CategoriesSection({ activeTab, onTabChange }: CategoriesSectionP
         </div>
 
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          {categories.map((cat) => (
+          {cards.map((cat) => (
             <Link
-              key={cat.name}
+              key={cat.id}
               href={`/catalogo?categoria=${encodeURIComponent(cat.name)}`}
               className="group relative overflow-hidden rounded-xl"
             >
-              <div className="aspect-[4/3]">
+              <div className="relative aspect-[4/3]">
                 <Image
                   src={cat.image}
                   alt={cat.name}

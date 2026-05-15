@@ -17,21 +17,22 @@ interface EditProductDialogProps {
     id: number;
     name: string;
     price: number;
-    category: string;
+    category: { id: number; name: string };
     description?: string;
     sizeDetails?: string;
     isNew: boolean;
     images?: ExistingImage[];
   };
+  onSaved?: () => void;
 }
 
-export function EditProductDialog({ product }: EditProductDialogProps) {
+export function EditProductDialog({ product, onSaved }: EditProductDialogProps) {
   const [open, setOpen] = useState(false);
 
   const initialData: ProductFormData = {
     name: product.name,
     price: String(product.price),
-    category: product.category,
+    categoryId: product.category.id,
     description: product.description ?? "",
     sizeDetails: product.sizeDetails ?? "",
     isNew: product.isNew,
@@ -55,13 +56,27 @@ export function EditProductDialog({ product }: EditProductDialogProps) {
           initialData={initialData}
           existingImages={product.images}
           submitLabel="Atualizar Produto"
-          onSubmit={(data, images) => {
-            console.log("Product updated:", {
-              id: product.id,
-              ...data,
-              price: parseFloat(data.price),
-              images,
+          onSubmit={async (data, images) => {
+            const res = await fetch(`/api/admin/products/${product.id}`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                name: data.name,
+                price: parseFloat(data.price),
+                description: data.description,
+                sizeDetails: data.sizeDetails,
+                isNew: data.isNew,
+                categoryId: data.categoryId,
+                images,
+              }),
             });
+
+            if (!res.ok) {
+              const err = await res.json();
+              throw new Error(err.error || "Erro ao atualizar produto.");
+            }
+
+            onSaved?.();
           }}
           onClose={() => setOpen(false)}
         />
