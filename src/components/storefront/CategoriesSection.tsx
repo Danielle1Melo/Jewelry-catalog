@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 
 interface CategoriesSectionProps {
   activeTab: string;
@@ -52,16 +50,6 @@ export function CategoriesSection({ activeTab, onTabChange }: CategoriesSectionP
               </button>
             ))}
           </div>
-        </div>
-
-        <div className="mt-4 text-center">
-          <Link
-            href="/catalogo"
-            className="inline-flex items-center gap-1 text-sm font-semibold text-tiffany transition-colors hover:text-tiffany-dark"
-          >
-            Ver todos os produtos
-            <ArrowRight className="h-4 w-4" />
-          </Link>
         </div>
       </div>
     </section>
