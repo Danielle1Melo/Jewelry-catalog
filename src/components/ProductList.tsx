@@ -1,93 +1,118 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { DeleteProductDialog } from "./admin/DeleteProductDialog";
 import * as ScrollArea from "@radix-ui/react-scroll-area";
 import * as Separator from "@radix-ui/react-separator";
 import Image from "next/image";
 import { AddProductDialog } from "./admin/AddProductDialog";
+import { AddCategoryDialog } from "./admin/AddCategoryDialog";
 import { EditProductDialog } from "./admin/EditProductDialog";
-import { Search } from "lucide-react";
+import { Loader2, Search } from "lucide-react";
 import { Input } from "./ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "./ui/select";
-import earringsImg from "@/assets/earrings.png";
 
-import type { StaticImageData } from "next/image";
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  category: string;
-  isNew: boolean;
-  image: StaticImageData;
+interface ProductImage {
+  id: string;
+  url: string;
+  publicId: string;
 }
 
-const mockProducts: Product[] = [
-  { id: 1, name: "Colar Meia Lua", price: 89, category: "Colares", isNew: true, image: earringsImg },
-  { id: 2, name: "Brinco Gota", price: 65, category: "Brincos", isNew: true, image: earringsImg },
-  { id: 3, name: "Bracelete Serpente", price: 120, category: "Braceletes", isNew: false, image: earringsImg },
-  { id: 4, name: "Berloque Estrela", price: 45, category: "Berloques", isNew: true, image: earringsImg },
-  { id: 5, name: "Brinco Argola Infinito", price: 78, category: "Brincos", isNew: false, image: earringsImg },
-  { id: 6, name: "Colar de Pérolas", price: 135, category: "Colares", isNew: true, image: earringsImg },
-  { id: 7, name: "Pulseira Trançada", price: 95, category: "Pulseiras Femininas", isNew: false, image: earringsImg },
-  { id: 8, name: "Berloque Coração", price: 55, category: "Berloques", isNew: false, image: earringsImg },
-  { id: 9, name: "Colar Cascata", price: 155, category: "Colares", isNew: true, image: earringsImg },
-  { id: 10, name: "Brinco Ponto de Luz", price: 48, category: "Brincos", isNew: false, image: earringsImg },
-  { id: 11, name: "Pulseira Ondas", price: 110, category: "Pulseiras Femininas", isNew: true, image: earringsImg },
-  { id: 12, name: "Berloque Borboleta", price: 42, category: "Berloques", isNew: false, image: earringsImg },
-];
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  description: string;
+  sizeDetails: string;
+  isNew: boolean;
+  soldOut: boolean;
+  category: { id: string; name: string };
+  images: ProductImage[];
+}
 
-function ProductRow({ product }: { product: Product }) {
+function ProductRow({
+  product,
+  onMutate,
+}: {
+  product: Product;
+  onMutate: () => void;
+}) {
+  const firstImage = product.images[0]?.url;
+
   return (
-    <div className="flex items-center gap-3 px-4 py-3">
-      <div className="h-14 w-14 rounded-md shrink-0 overflow-hidden bg-gray-200">
-        <Image
-          src={product.image}
-          alt={product.name}
-          width={56}
-          height={56}
-          className="h-full w-full object-cover"
-        />
+    <div className="flex items-center gap-2 px-3 py-3 sm:gap-3 sm:px-4">
+      <div className="h-11 w-11 rounded-md shrink-0 overflow-hidden bg-gray-200 sm:h-14 sm:w-14">
+        {firstImage ? (
+          <Image
+            src={firstImage}
+            alt={product.name}
+            width={56}
+            height={56}
+            sizes="(max-width: 640px) 44px, 56px"
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div className="h-full w-full" />
+        )}
       </div>
 
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium text-title">{product.name}</p>
         <p className="text-xs text-description">
-          {product.price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} · {product.category}
+          {product.price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} · {product.category.name}
           {product.isNew && " · Novidade"}
+          {product.soldOut && <span className="text-red-500"> · Esgotado</span>}
         </p>
       </div>
 
       <div className="flex shrink-0 items-center gap-2">
-        <EditProductDialog product={product} />
-        <DeleteProductDialog product={product} />
+        <EditProductDialog product={product} onSaved={onMutate} />
+        <DeleteProductDialog product={product} onDeleted={onMutate} />
       </div>
     </div>
   );
 }
 
 export function ProductList() {
-  const products = mockProducts;
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("Todas");
+  const [categories, setCategories] = useState<string[]>(["Todas"]);
 
-  const categories = useMemo(() => {
-    const unique = [...new Set(products.map((p) => p.category))].sort();
-    return ["Todas", ...unique];
-  }, [products]);
+  const fetchProducts = useCallback(async () => {
+    try {
+      const res = await fetch("/api/products");
+      if (res.ok) {
+        setProducts(await res.json());
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  const filtered = useMemo(() => {
-    return products.filter((p) => {
-      if (categoryFilter !== "Todas" && p.category !== categoryFilter) return false;
-      if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
-      return true;
-    });
-  }, [products, search, categoryFilter]);
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+
+  useEffect(() => {
+    fetch("/api/categories")
+      .then((res) => res.json())
+      .then((cats: { name: string }[]) => {
+        setCategories(["Todas", ...cats.map((c) => c.name)]);
+      })
+      .catch(() => {});
+  }, []);
+
+  const filtered = products.filter((p) => {
+    if (categoryFilter !== "Todas" && p.category.name !== categoryFilter) return false;
+    if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
+    return true;
+  });
 
   return (
     <main className="px-5 py-6">
-      <div className="mb-5 flex items-center justify-between">
+      <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-2xl font-bold text-title">Produtos</h2>
           <p className="text-sm text-description">
@@ -95,7 +120,10 @@ export function ProductList() {
           </p>
         </div>
 
-        <AddProductDialog />
+        <div className="flex gap-2">
+          <AddProductDialog onSaved={fetchProducts} />
+          <AddCategoryDialog />
+        </div>
       </div>
 
       <div className="mb-4 flex flex-col gap-2 sm:flex-row">
@@ -122,30 +150,36 @@ export function ProductList() {
         </Select>
       </div>
 
-      <ScrollArea.Root className="max-h-[calc(100vh-16rem)] overflow-hidden rounded-xl bg-white shadow-sm">
-        <ScrollArea.Viewport className="h-full w-full">
-          {filtered.length > 0 ? (
-            filtered.map((product, index) => (
-              <div key={product.id}>
-                <ProductRow product={product} />
-                {index < filtered.length - 1 && (
-                  <Separator.Root className="mx-4 h-px bg-gray-100" />
-                )}
+      {loading ? (
+        <div className="flex justify-center py-16">
+          <Loader2 className="h-6 w-6 animate-spin text-tiffany" />
+        </div>
+      ) : (
+        <ScrollArea.Root className="max-h-[calc(100vh-16rem)] overflow-hidden rounded-xl bg-white shadow-sm">
+          <ScrollArea.Viewport className="h-full w-full">
+            {filtered.length > 0 ? (
+              filtered.map((product, index) => (
+                <div key={product.id}>
+                  <ProductRow product={product} onMutate={fetchProducts} />
+                  {index < filtered.length - 1 && (
+                    <Separator.Root className="mx-4 h-px bg-gray-100" />
+                  )}
+                </div>
+              ))
+            ) : (
+              <div className="py-12 text-center">
+                <p className="text-sm text-description">Nenhum produto encontrado.</p>
               </div>
-            ))
-          ) : (
-            <div className="py-12 text-center">
-              <p className="text-sm text-description">Nenhum produto encontrado.</p>
-            </div>
-          )}
-        </ScrollArea.Viewport>
-        <ScrollArea.Scrollbar
-          className="flex touch-none select-none bg-transparent p-0.5 transition-colors data-[orientation=horizontal]:h-2.5 data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col"
-          orientation="vertical"
-        >
-          <ScrollArea.Thumb className="relative flex-1 rounded-full bg-gray-300 before:absolute before:left-1/2 before:top-1/2 before:h-full before:min-h-[44px] before:w-full before:min-w-[44px] before:-translate-x-1/2 before:-translate-y-1/2" />
-        </ScrollArea.Scrollbar>
-      </ScrollArea.Root>
+            )}
+          </ScrollArea.Viewport>
+          <ScrollArea.Scrollbar
+            className="flex touch-none select-none bg-transparent p-0.5 transition-colors data-[orientation=horizontal]:h-2.5 data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col"
+            orientation="vertical"
+          >
+            <ScrollArea.Thumb className="relative flex-1 rounded-full bg-gray-300 before:absolute before:left-1/2 before:top-1/2 before:h-full before:min-h-[44px] before:w-full before:min-w-[44px] before:-translate-x-1/2 before:-translate-y-1/2" />
+          </ScrollArea.Scrollbar>
+        </ScrollArea.Root>
+      )}
     </main>
   );
 }

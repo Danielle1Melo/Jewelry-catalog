@@ -1,25 +1,10 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { X as XIcon, ImagePlus, Loader2 } from "lucide-react";
+import { X as XIcon, ImagePlus, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input, Textarea } from "../ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "../ui/select";
-
-// TODO: buscar da API futuramente
-const CATEGORIES = [
-  "Brincos",
-  "Colares",
-  "Pulseiras Femininas",
-  "Pulseiras Masculinas",
-  "Colares Masculinos",
-  "Pingentes",
-  "Berloques",
-  "Braceletes",
-  "Relógios",
-  "Anéis",
-  "Tornozeleiras",
-];
 import { Label } from "../ui/label";
 import { Checkbox } from "../ui/checkbox";
 import { uploadImages, type UploadedImage } from "@/services/uploadService";
@@ -27,10 +12,11 @@ import { uploadImages, type UploadedImage } from "@/services/uploadService";
 export interface ProductFormData {
   name: string;
   price: string;
-  category: string;
+  categoryId: string | null;
   description: string;
   sizeDetails: string;
   isNew: boolean;
+  soldOut: boolean;
 }
 
 export interface ExistingImage {
@@ -45,21 +31,39 @@ interface ImagePreview {
   previewUrl: string;
 }
 
+type ImageItem =
+  | { type: "existing"; data: ExistingImage }
+  | { type: "new"; data: ImagePreview };
+
+function getItemKey(item: ImageItem) {
+  return item.type === "existing" ? `e-${item.data.id}` : `n-${item.data.id}`;
+}
+
+function getItemSrc(item: ImageItem) {
+  return item.type === "existing" ? item.data.url : item.data.previewUrl;
+}
+
+interface Category {
+  id: string;
+  name: string;
+}
+
 interface ProductFormProps {
   initialData?: ProductFormData;
   existingImages?: ExistingImage[];
   submitLabel: string;
-  onSubmit: (data: ProductFormData, images: UploadedImage[]) => void;
+  onSubmit: (data: ProductFormData, images: UploadedImage[]) => void | Promise<void>;
   onClose: () => void;
 }
 
 const emptyFormData: ProductFormData = {
   name: "",
   price: "",
-  category: "",
+  categoryId: null,
   description: "",
   sizeDetails: "",
   isNew: false,
+  soldOut: false,
 };
 
 export function ProductForm({
@@ -72,15 +76,24 @@ export function ProductForm({
   const [formData, setFormData] = useState<ProductFormData>(
     initialData ?? emptyFormData
   );
-  const [kept, setKept] = useState<ExistingImage[]>(existingImages);
-  const [newImages, setNewImages] = useState<ImagePreview[]>([]);
+  const [images, setImages] = useState<ImageItem[]>(
+    existingImages.map((img) => ({ type: "existing", data: img }))
+  );
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
   const previewUrlsRef = useRef<string[]>([]);
+
+  useEffect(() => {
+    fetch("/api/categories")
+      .then((res) => res.json())
+      .then(setCategories)
+      .catch(() => {});
+  }, []);
 
   const updateField = (
     field: keyof ProductFormData,
-    value: string | boolean
+    value: string | boolean | null
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
@@ -88,12 +101,15 @@ export function ProductForm({
   const handleFileSelect = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const files = Array.from(e.target.files ?? []);
-      const previews = files.map((file) => {
+      const newItems: ImageItem[] = files.map((file) => {
         const previewUrl = URL.createObjectURL(file);
         previewUrlsRef.current.push(previewUrl);
-        return { id: crypto.randomUUID(), file, previewUrl };
+        return {
+          type: "new",
+          data: { id: crypto.randomUUID(), file, previewUrl },
+        };
       });
-      setNewImages((prev) => [...prev, ...previews]);
+      setImages((prev) => [...prev, ...newItems]);
       e.target.value = "";
     },
     []
@@ -105,15 +121,21 @@ export function ProductForm({
     };
   }, []);
 
-  const removeExisting = (id: string) => {
-    setKept((prev) => prev.filter((img) => img.id !== id));
-  };
+  const removeImage = useCallback((index: number) => {
+    setImages((prev) => {
+      const item = prev[index];
+      if (item.type === "new") URL.revokeObjectURL(item.data.previewUrl);
+      return prev.filter((_, i) => i !== index);
+    });
+  }, []);
 
-  const removeNew = useCallback((id: string) => {
-    setNewImages((prev) => {
-      const target = prev.find((img) => img.id === id);
-      if (target) URL.revokeObjectURL(target.previewUrl);
-      return prev.filter((img) => img.id !== id);
+  const moveImage = useCallback((index: number, direction: -1 | 1) => {
+    setImages((prev) => {
+      const target = index + direction;
+      if (target < 0 || target >= prev.length) return prev;
+      const next = [...prev];
+      [next[index], next[target]] = [next[target], next[index]];
+      return next;
     });
   }, []);
 
@@ -121,7 +143,7 @@ export function ProductForm({
     e.preventDefault();
     setError(null);
 
-    if (!formData.category) {
+    if (!formData.categoryId) {
       setError("Selecione uma categoria.");
       return;
     }
@@ -129,18 +151,32 @@ export function ProductForm({
     setUploading(true);
 
     try {
+      // Upload new files
+      const newFiles = images
+        .filter((item): item is ImageItem & { type: "new" } => item.type === "new")
+        .map((item) => item.data);
+
       const uploaded =
-        newImages.length > 0
-          ? await uploadImages(newImages.map((img) => img.file))
+        newFiles.length > 0
+          ? await uploadImages(newFiles.map((f) => f.file))
           : [];
 
-      const allImages: UploadedImage[] = [
-        ...kept.map((img) => ({ url: img.url, publicId: img.publicId })),
-        ...uploaded,
-      ];
+      // Build uploadedMap: preview id → uploaded result
+      const uploadedMap = new Map<string, UploadedImage>();
+      newFiles.forEach((f, i) => uploadedMap.set(f.id, uploaded[i]));
 
-      onSubmit(formData, allImages);
-      newImages.forEach((img) => URL.revokeObjectURL(img.previewUrl));
+      // Build final ordered images array
+      const allImages: UploadedImage[] = images.map((item) => {
+        if (item.type === "existing") {
+          return { url: item.data.url, publicId: item.data.publicId };
+        }
+        return uploadedMap.get(item.data.id)!;
+      });
+
+      await onSubmit(formData, allImages);
+      images.forEach((item) => {
+        if (item.type === "new") URL.revokeObjectURL(item.data.previewUrl);
+      });
       onClose();
     } catch (err) {
       const message =
@@ -181,17 +217,17 @@ export function ProductForm({
         <div className="space-y-1.5">
           <Label>Categoria</Label>
           <Select
-            value={formData.category || undefined}
-            onValueChange={(value) => updateField("category", value)}
+            value={formData.categoryId ? String(formData.categoryId) : undefined}
+            onValueChange={(value) => updateField("categoryId", value)}
             required
           >
             <SelectTrigger>
               <SelectValue placeholder="Selecione" />
             </SelectTrigger>
             <SelectContent>
-              {CATEGORIES.map((cat) => (
-                <SelectItem key={cat} value={cat}>
-                  {cat}
+              {categories.map((cat) => (
+                <SelectItem key={cat.id} value={String(cat.id)}>
+                  {cat.name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -219,48 +255,57 @@ export function ProductForm({
         />
       </div>
 
-      {/* Imagens */}
       <div className="space-y-1.5">
-        <Label>Imagens</Label>
+        <Label>Imagens <span className="font-normal text-description">(primeira = capa)</span></Label>
 
-        {/* Existing images (URLs) */}
-        {kept.map((img) => (
-          <div
-            key={img.id}
-            className="flex items-center gap-2 rounded-md border border-gray-200 px-3 py-2"
-          >
-            <p className="min-w-0 flex-1 truncate text-sm text-description">
-              {img.url}
-            </p>
-            <button
-              type="button"
-              onClick={() => removeExisting(img.id)}
-              className="shrink-0 rounded-md p-1 text-description transition-colors hover:bg-gray-100 hover:text-title cursor-pointer"
-            >
-              <XIcon className="h-4 w-4" />
-            </button>
-          </div>
-        ))}
-
-        {/* New image previews */}
         <div className="grid grid-cols-3 gap-2">
-          {newImages.map((img) => (
+          {images.map((item, index) => (
             <div
-              key={img.id}
-              className="group relative aspect-square overflow-hidden rounded-md border border-gray-200"
+              key={getItemKey(item)}
+              className={`group relative aspect-square overflow-hidden rounded-md border-2 ${
+                index === 0 ? "border-tiffany" : "border-gray-200"
+              }`}
             >
               <img
-                src={img.previewUrl}
-                alt="Preview"
+                src={getItemSrc(item)}
+                alt={index === 0 ? "Capa" : `Imagem ${index + 1}`}
                 className="h-full w-full object-cover"
               />
+
+              {index === 0 && (
+                <span className="absolute left-1 bottom-1 rounded bg-tiffany px-1.5 py-0.5 text-[10px] font-bold text-white">
+                  Capa
+                </span>
+              )}
+
               <button
                 type="button"
-                onClick={() => removeNew(img.id)}
+                onClick={() => removeImage(index)}
                 className="absolute right-1 top-1 rounded-full bg-black/50 p-0.5 text-white opacity-0 transition-opacity group-hover:opacity-100 cursor-pointer"
               >
                 <XIcon className="h-3 w-3" />
               </button>
+
+              <div className="absolute bottom-1 right-1 flex gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+                {index > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => moveImage(index, -1)}
+                    className="rounded bg-black/50 p-0.5 text-white cursor-pointer hover:bg-black/70"
+                  >
+                    <ChevronLeft className="h-3 w-3" />
+                  </button>
+                )}
+                {index < images.length - 1 && (
+                  <button
+                    type="button"
+                    onClick={() => moveImage(index, 1)}
+                    className="rounded bg-black/50 p-0.5 text-white cursor-pointer hover:bg-black/70"
+                  >
+                    <ChevronRight className="h-3 w-3" />
+                  </button>
+                )}
+              </div>
             </div>
           ))}
 
@@ -278,15 +323,27 @@ export function ProductForm({
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
-        <Checkbox
-          id="product-is-new"
-          checked={formData.isNew}
-          onCheckedChange={(checked) => updateField("isNew", checked === true)}
-        />
-        <Label htmlFor="product-is-new" className="cursor-pointer font-normal">
-          Marcar como Novidade
-        </Label>
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
+          <Checkbox
+            id="product-is-new"
+            checked={formData.isNew}
+            onCheckedChange={(checked) => updateField("isNew", checked === true)}
+          />
+          <Label htmlFor="product-is-new" className="cursor-pointer font-normal">
+            Novidade
+          </Label>
+        </div>
+        <div className="flex items-center gap-2">
+          <Checkbox
+            id="product-sold-out"
+            checked={formData.soldOut}
+            onCheckedChange={(checked) => updateField("soldOut", checked === true)}
+          />
+          <Label htmlFor="product-sold-out" className="cursor-pointer font-normal">
+            Esgotado
+          </Label>
+        </div>
       </div>
 
       {error && (
