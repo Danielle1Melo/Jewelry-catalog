@@ -26,7 +26,7 @@ export async function getCroppedImageBlob(
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("Canvas 2D context not available");
 
-  const size = Math.min(pixelCrop.width, maxSize);
+  const size = Math.round(Math.min(pixelCrop.width, pixelCrop.height, maxSize));
   canvas.width = size;
   canvas.height = size;
 

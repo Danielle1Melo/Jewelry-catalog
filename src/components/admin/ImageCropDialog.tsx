@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import Cropper, { type Area } from "react-easy-crop";
 import {
   Dialog,
@@ -26,6 +26,14 @@ export function ImageCropDialog({
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<PixelCrop | null>(null);
   const [processing, setProcessing] = useState(false);
+  const prevSrcRef = useRef(imageSrc);
+
+  if (imageSrc !== prevSrcRef.current) {
+    prevSrcRef.current = imageSrc;
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
+    setCroppedAreaPixels(null);
+  }
 
   const handleCropComplete = useCallback((_: Area, croppedPixels: Area) => {
     setCroppedAreaPixels(croppedPixels);
@@ -78,6 +86,7 @@ export function ImageCropDialog({
             step={0.05}
             value={zoom}
             onChange={(e) => setZoom(Number(e.target.value))}
+            aria-label="Zoom da imagem"
             className="flex-1 accent-tiffany"
           />
           <span className="text-xs text-description">+</span>

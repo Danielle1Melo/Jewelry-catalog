@@ -17,7 +17,7 @@ export function Header() {
   const { totalItems } = useCart();
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-gray-100">
+    <header className={`sticky top-0 z-50 bg-white border-b ${menuOpen ? "border-tiffany" : "border-gray-100"}`}>
       <div className="flex items-center justify-between px-5 py-4">
         <div className="flex items-center gap-2">
           <Logo className="h-5 w-5" />
