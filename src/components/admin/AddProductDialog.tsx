@@ -46,14 +46,15 @@ export function AddProductDialog({ onSaved }: AddProductDialogProps) {
                 description: data.description,
                 sizeDetails: data.sizeDetails,
                 isNew: data.isNew,
+                soldOut: data.soldOut,
                 categoryId: data.categoryId,
                 images,
               }),
             });
 
             if (!res.ok) {
-              const err = await res.json();
-              throw new Error(err.error || "Erro ao criar produto.");
+              const err = await res.json().catch(() => null);
+              throw new Error(err?.error || "Erro ao criar produto.");
             }
 
             onSaved?.();

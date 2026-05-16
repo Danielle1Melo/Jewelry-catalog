@@ -16,6 +16,7 @@ export interface ProductFormData {
   description: string;
   sizeDetails: string;
   isNew: boolean;
+  soldOut: boolean;
 }
 
 export interface ExistingImage {
@@ -62,6 +63,7 @@ const emptyFormData: ProductFormData = {
   description: "",
   sizeDetails: "",
   isNew: false,
+  soldOut: false,
 };
 
 export function ProductForm({
@@ -321,15 +323,27 @@ export function ProductForm({
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
-        <Checkbox
-          id="product-is-new"
-          checked={formData.isNew}
-          onCheckedChange={(checked) => updateField("isNew", checked === true)}
-        />
-        <Label htmlFor="product-is-new" className="cursor-pointer font-normal">
-          Marcar como Novidade
-        </Label>
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
+          <Checkbox
+            id="product-is-new"
+            checked={formData.isNew}
+            onCheckedChange={(checked) => updateField("isNew", checked === true)}
+          />
+          <Label htmlFor="product-is-new" className="cursor-pointer font-normal">
+            Novidade
+          </Label>
+        </div>
+        <div className="flex items-center gap-2">
+          <Checkbox
+            id="product-sold-out"
+            checked={formData.soldOut}
+            onCheckedChange={(checked) => updateField("soldOut", checked === true)}
+          />
+          <Label htmlFor="product-sold-out" className="cursor-pointer font-normal">
+            Esgotado
+          </Label>
+        </div>
       </div>
 
       {error && (

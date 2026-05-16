@@ -21,6 +21,7 @@ interface EditProductDialogProps {
     description?: string;
     sizeDetails?: string;
     isNew: boolean;
+    soldOut: boolean;
     images?: ExistingImage[];
   };
   onSaved?: () => void;
@@ -36,6 +37,7 @@ export function EditProductDialog({ product, onSaved }: EditProductDialogProps) 
     description: product.description ?? "",
     sizeDetails: product.sizeDetails ?? "",
     isNew: product.isNew,
+    soldOut: product.soldOut,
   };
 
   return (
@@ -66,14 +68,15 @@ export function EditProductDialog({ product, onSaved }: EditProductDialogProps) 
                 description: data.description,
                 sizeDetails: data.sizeDetails,
                 isNew: data.isNew,
+                soldOut: data.soldOut,
                 categoryId: data.categoryId,
                 images,
               }),
             });
 
             if (!res.ok) {
-              const err = await res.json();
-              throw new Error(err.error || "Erro ao atualizar produto.");
+              const err = await res.json().catch(() => null);
+              throw new Error(err?.error || "Erro ao atualizar produto.");
             }
 
             onSaved?.();

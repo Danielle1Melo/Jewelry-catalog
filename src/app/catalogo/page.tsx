@@ -14,6 +14,7 @@ interface Product {
   name: string;
   price: number;
   isNew: boolean;
+  soldOut: boolean;
   category: { id: string; name: string };
   images: { url: string }[];
 }
@@ -32,11 +33,15 @@ function ProductCard({ product }: { product: Product }) {
             className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
         )}
-        {product.isNew && (
+        {product.soldOut ? (
+          <span className="absolute left-2 top-2 rounded-full bg-red-500 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+            Esgotado
+          </span>
+        ) : product.isNew ? (
           <span className="absolute left-2 top-2 rounded-full bg-tiffany px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
             Novo
           </span>
-        )}
+        ) : null}
       </div>
       <div className="mt-2">
         <p className="truncate text-sm font-medium text-title">{product.name}</p>

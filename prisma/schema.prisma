@@ -20,6 +20,7 @@ model Product {
   description String         @default("")
   sizeDetails String         @default("")
   isNew       Boolean        @default(false)
+  soldOut     Boolean        @default(false)
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
   categoryId  String

@@ -55,6 +55,7 @@ export async function PUT(
         description: body.description ?? "",
         sizeDetails: body.sizeDetails ?? "",
         isNew: body.isNew ?? false,
+        soldOut: body.soldOut ?? false,
         categoryId: body.categoryId,
         images: {
           create: newImages.map((img) => ({

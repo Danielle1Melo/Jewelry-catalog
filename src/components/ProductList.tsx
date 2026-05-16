@@ -23,6 +23,7 @@ interface Product {
   description: string;
   sizeDetails: string;
   isNew: boolean;
+  soldOut: boolean;
   category: { id: string; name: string };
   images: ProductImage[];
 }
@@ -57,6 +58,7 @@ function ProductRow({
         <p className="text-xs text-description">
           {product.price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} · {product.category.name}
           {product.isNew && " · Novidade"}
+          {product.soldOut && " · Esgotado"}
         </p>
       </div>
 

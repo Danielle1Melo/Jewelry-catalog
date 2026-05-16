@@ -22,6 +22,7 @@ interface Product {
   description: string;
   sizeDetails: string;
   isNew: boolean;
+  soldOut: boolean;
   category: { id: string; name: string };
   images: ProductImage[];
 }
@@ -134,11 +135,15 @@ export default function ProdutoPage() {
                     className="object-cover"
                   />
                 )}
-                {product.isNew && (
+                {product.soldOut ? (
+                  <span className="absolute left-3 top-3 rounded-full bg-red-500 px-3 py-1 text-xs font-bold uppercase tracking-wider text-white">
+                    Esgotado
+                  </span>
+                ) : product.isNew ? (
                   <span className="absolute left-3 top-3 rounded-full bg-tiffany px-3 py-1 text-xs font-bold uppercase tracking-wider text-white">
                     Novo
                   </span>
-                )}
+                ) : null}
               </div>
 
               {product.images.length > 1 && (
@@ -202,48 +207,54 @@ export default function ProdutoPage() {
                 </div>
               )}
 
-              <div className="mt-6 flex gap-3">
-                <a
-                  href={whatsappUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex flex-1 items-center justify-center gap-2 rounded-full bg-tiffany py-3.5 text-sm font-semibold text-white transition-colors hover:bg-tiffany-dark"
-                >
-                  <MessageCircle className="h-5 w-5" />
-                  Gostei
-                </a>
-                <button
-                  type="button"
-                  onClick={() => {
-                    addItem({
-                      id: product.id,
-                      name: product.name,
-                      price: product.price,
-                      image: product.images[0]?.url ?? "",
-                    });
-                    setAdded(true);
-                    if (addedTimerRef.current) clearTimeout(addedTimerRef.current);
-                    addedTimerRef.current = setTimeout(() => setAdded(false), 2000);
-                  }}
-                  className={`flex flex-1 items-center justify-center gap-2 rounded-full border-2 py-3.5 text-sm font-semibold transition-colors ${
-                    added
-                      ? "border-tiffany bg-tiffany text-white"
-                      : "border-tiffany bg-white text-tiffany hover:bg-tiffany-light"
-                  }`}
-                >
-                  {added ? (
-                    <>
-                      <Check className="h-5 w-5" />
-                      Adicionado!
-                    </>
-                  ) : (
-                    <>
-                      <ShoppingBag className="h-5 w-5" />
-                      Adicionar ao carrinho
-                    </>
-                  )}
-                </button>
-              </div>
+              {product.soldOut ? (
+                <div className="mt-6 rounded-full bg-gray-100 py-3.5 text-center text-sm font-semibold text-gray-400">
+                  Produto esgotado
+                </div>
+              ) : (
+                <div className="mt-6 flex gap-3">
+                  <a
+                    href={whatsappUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex flex-1 items-center justify-center gap-2 rounded-full bg-tiffany py-3.5 text-sm font-semibold text-white transition-colors hover:bg-tiffany-dark"
+                  >
+                    <MessageCircle className="h-5 w-5" />
+                    Gostei
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      addItem({
+                        id: product.id,
+                        name: product.name,
+                        price: product.price,
+                        image: product.images[0]?.url ?? "",
+                      });
+                      setAdded(true);
+                      if (addedTimerRef.current) clearTimeout(addedTimerRef.current);
+                      addedTimerRef.current = setTimeout(() => setAdded(false), 2000);
+                    }}
+                    className={`flex flex-1 items-center justify-center gap-2 rounded-full border-2 py-3.5 text-sm font-semibold transition-colors ${
+                      added
+                        ? "border-tiffany bg-tiffany text-white"
+                        : "border-tiffany bg-white text-tiffany hover:bg-tiffany-light"
+                    }`}
+                  >
+                    {added ? (
+                      <>
+                        <Check className="h-5 w-5" />
+                        Adicionado!
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingBag className="h-5 w-5" />
+                        Adicionar ao carrinho
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -264,11 +275,15 @@ export default function ProdutoPage() {
                           className="object-cover transition-transform duration-300 group-hover:scale-105"
                         />
                       )}
-                      {p.isNew && (
+                      {p.soldOut ? (
+                        <span className="absolute left-2 top-2 rounded-full bg-red-500 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+                          Esgotado
+                        </span>
+                      ) : p.isNew ? (
                         <span className="absolute left-2 top-2 rounded-full bg-tiffany px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
                           Novo
                         </span>
-                      )}
+                      ) : null}
                     </div>
                     <div className="mt-2">
                       <p className="truncate text-sm font-medium text-title">
