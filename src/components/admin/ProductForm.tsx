@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { X as XIcon, ImagePlus, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { X as XIcon, ImagePlus, Loader2, ChevronLeft, ChevronRight, Crop } from "lucide-react";
+import { ImageCropDialog } from "./ImageCropDialog";
 import { Button } from "../ui/button";
 import { Input, Textarea } from "../ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "../ui/select";
@@ -83,6 +84,12 @@ export function ProductForm({
   const [error, setError] = useState<string | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const previewUrlsRef = useRef<string[]>([]);
+  const [cropTarget, setCropTarget] = useState<{
+    index: number | null;
+    imageSrc: string;
+    originalFile?: File;
+  } | null>(null);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
   useEffect(() => {
     fetch("/api/categories")
@@ -98,22 +105,73 @@ export function ProductForm({
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const openCropForFile = useCallback((file: File) => {
+    const url = URL.createObjectURL(file);
+    setCropTarget({ index: null, imageSrc: url, originalFile: file });
+  }, []);
+
   const handleFileSelect = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const files = Array.from(e.target.files ?? []);
-      const newItems: ImageItem[] = files.map((file) => {
-        const previewUrl = URL.createObjectURL(file);
-        previewUrlsRef.current.push(previewUrl);
-        return {
-          type: "new",
-          data: { id: crypto.randomUUID(), file, previewUrl },
-        };
-      });
-      setImages((prev) => [...prev, ...newItems]);
       e.target.value = "";
+      if (files.length === 0) return;
+      const [first, ...rest] = files;
+      setPendingFiles(rest);
+      openCropForFile(first);
     },
-    []
+    [openCropForFile]
   );
+
+  const processNextPending = useCallback(() => {
+    setPendingFiles((prev) => {
+      if (prev.length === 0) return prev;
+      const [next, ...rest] = prev;
+      setTimeout(() => openCropForFile(next), 0);
+      return rest;
+    });
+  }, [openCropForFile]);
+
+  const handleCropDone = useCallback(
+    (croppedBlob: Blob) => {
+      if (cropTarget?.imageSrc) URL.revokeObjectURL(cropTarget.imageSrc);
+
+      const croppedFile = new File(
+        [croppedBlob],
+        cropTarget?.originalFile?.name ?? "cropped.jpg",
+        { type: "image/jpeg" }
+      );
+      const previewUrl = URL.createObjectURL(croppedFile);
+      previewUrlsRef.current.push(previewUrl);
+
+      if (cropTarget?.index != null) {
+        setImages((prev) =>
+          prev.map((item, i) => {
+            if (i !== cropTarget.index) return item;
+            if (item.type === "new") URL.revokeObjectURL(item.data.previewUrl);
+            return {
+              type: "new",
+              data: { id: crypto.randomUUID(), file: croppedFile, previewUrl },
+            };
+          })
+        );
+      } else {
+        setImages((prev) => [
+          ...prev,
+          { type: "new", data: { id: crypto.randomUUID(), file: croppedFile, previewUrl } },
+        ]);
+      }
+
+      setCropTarget(null);
+      processNextPending();
+    },
+    [cropTarget, processNextPending]
+  );
+
+  const handleCropCancel = useCallback(() => {
+    if (cropTarget?.imageSrc) URL.revokeObjectURL(cropTarget.imageSrc);
+    setCropTarget(null);
+    processNextPending();
+  }, [cropTarget, processNextPending]);
 
   useEffect(() => {
     return () => {
@@ -256,7 +314,7 @@ export function ProductForm({
       </div>
 
       <div className="space-y-1.5">
-        <Label>Imagens <span className="font-normal text-description">(primeira = capa)</span></Label>
+        <Label>Imagens</Label>
 
         <div className="grid grid-cols-3 gap-2">
           {images.map((item, index) => (
@@ -277,6 +335,17 @@ export function ProductForm({
                   Capa
                 </span>
               )}
+
+              <button
+                type="button"
+                onClick={() => {
+                  setCropTarget({ index, imageSrc: getItemSrc(item) });
+                }}
+                className="absolute left-1 top-1 rounded-full bg-black/50 p-0.5 text-white opacity-0 transition-opacity group-hover:opacity-100 cursor-pointer"
+                title="Ajustar imagem"
+              >
+                <Crop className="h-3 w-3" />
+              </button>
 
               <button
                 type="button"
@@ -365,6 +434,12 @@ export function ProductForm({
           submitLabel
         )}
       </Button>
+
+      <ImageCropDialog
+        imageSrc={cropTarget?.imageSrc ?? null}
+        onCropComplete={handleCropDone}
+        onClose={handleCropCancel}
+      />
     </form>
   );
 }
