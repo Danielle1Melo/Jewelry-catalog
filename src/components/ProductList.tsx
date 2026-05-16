@@ -8,7 +8,9 @@ import Image from "next/image";
 import { AddProductDialog } from "./admin/AddProductDialog";
 import { AddCategoryDialog } from "./admin/AddCategoryDialog";
 import { EditProductDialog } from "./admin/EditProductDialog";
-import { Loader2 } from "lucide-react";
+import { Loader2, Search } from "lucide-react";
+import { Input } from "./ui/input";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "./ui/select";
 
 interface ProductImage {
   id: string;
@@ -74,6 +76,9 @@ function ProductRow({
 export function ProductList() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("Todas");
+  const [categories, setCategories] = useState<string[]>(["Todas"]);
 
   const fetchProducts = useCallback(async () => {
     try {
@@ -90,13 +95,28 @@ export function ProductList() {
     fetchProducts();
   }, [fetchProducts]);
 
+  useEffect(() => {
+    fetch("/api/categories")
+      .then((res) => res.json())
+      .then((cats: { name: string }[]) => {
+        setCategories(["Todas", ...cats.map((c) => c.name)]);
+      })
+      .catch(() => {});
+  }, []);
+
+  const filtered = products.filter((p) => {
+    if (categoryFilter !== "Todas" && p.category.name !== categoryFilter) return false;
+    if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
+    return true;
+  });
+
   return (
     <main className="px-5 py-6">
       <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-2xl font-bold text-title">Produtos</h2>
           <p className="text-sm text-description">
-            {products.length} itens no catálogo
+            {filtered.length} de {products.length} itens
           </p>
         </div>
 
@@ -106,21 +126,51 @@ export function ProductList() {
         </div>
       </div>
 
+      <div className="mb-4 flex flex-col gap-2 sm:flex-row">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-description" />
+          <Input
+            placeholder="Buscar produto..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+          <SelectTrigger className="sm:w-48">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {categories.map((cat) => (
+              <SelectItem key={cat} value={cat}>
+                {cat}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       {loading ? (
         <div className="flex justify-center py-16">
           <Loader2 className="h-6 w-6 animate-spin text-tiffany" />
         </div>
       ) : (
-        <ScrollArea.Root className="max-h-[calc(100vh-12rem)] overflow-hidden rounded-xl bg-white shadow-sm">
+        <ScrollArea.Root className="max-h-[calc(100vh-16rem)] overflow-hidden rounded-xl bg-white shadow-sm">
           <ScrollArea.Viewport className="h-full w-full">
-            {products.map((product, index) => (
-              <div key={product.id}>
-                <ProductRow product={product} onMutate={fetchProducts} />
-                {index < products.length - 1 && (
-                  <Separator.Root className="mx-4 h-px bg-gray-100" />
-                )}
+            {filtered.length > 0 ? (
+              filtered.map((product, index) => (
+                <div key={product.id}>
+                  <ProductRow product={product} onMutate={fetchProducts} />
+                  {index < filtered.length - 1 && (
+                    <Separator.Root className="mx-4 h-px bg-gray-100" />
+                  )}
+                </div>
+              ))
+            ) : (
+              <div className="py-12 text-center">
+                <p className="text-sm text-description">Nenhum produto encontrado.</p>
               </div>
-            ))}
+            )}
           </ScrollArea.Viewport>
           <ScrollArea.Scrollbar
             className="flex touch-none select-none bg-transparent p-0.5 transition-colors data-[orientation=horizontal]:h-2.5 data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col"
