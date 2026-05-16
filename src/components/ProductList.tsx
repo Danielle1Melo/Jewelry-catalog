@@ -38,14 +38,15 @@ function ProductRow({
   const firstImage = product.images[0]?.url;
 
   return (
-    <div className="flex items-center gap-3 px-4 py-3">
-      <div className="h-14 w-14 rounded-md shrink-0 overflow-hidden bg-gray-200">
+    <div className="flex items-center gap-2 px-3 py-3 sm:gap-3 sm:px-4">
+      <div className="h-11 w-11 rounded-md shrink-0 overflow-hidden bg-gray-200 sm:h-14 sm:w-14">
         {firstImage ? (
           <Image
             src={firstImage}
             alt={product.name}
             width={56}
             height={56}
+            sizes="(max-width: 640px) 44px, 56px"
             className="h-full w-full object-cover"
           />
         ) : (
@@ -58,7 +59,7 @@ function ProductRow({
         <p className="text-xs text-description">
           {product.price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} · {product.category.name}
           {product.isNew && " · Novidade"}
-          {product.soldOut && " · Esgotado"}
+          {product.soldOut && <span className="text-red-500"> · Esgotado</span>}
         </p>
       </div>
 
