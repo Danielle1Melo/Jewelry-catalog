@@ -22,23 +22,25 @@ interface DeleteProductDialogProps {
 export function DeleteProductDialog({ product, onDeleted }: DeleteProductDialogProps) {
   const [open, setOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [error, setError] = useState("");
 
   const handleDelete = async () => {
     setDeleting(true);
+    setError("");
     try {
       const res = await fetch(`/api/admin/products/${product.id}`, {
         method: "DELETE",
       });
 
       if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || "Erro ao excluir produto.");
+        const err = await res.json().catch(() => null);
+        throw new Error(err?.error || "Erro ao excluir produto.");
       }
 
       setOpen(false);
       onDeleted?.();
-    } catch {
-      // keep dialog open on error
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Erro ao excluir produto.");
     } finally {
       setDeleting(false);
     }
@@ -59,6 +61,10 @@ export function DeleteProductDialog({ product, onDeleted }: DeleteProductDialogP
           <span className="font-medium text-title">{product.name}</span>? Essa
           ação não pode ser desfeita.
         </DialogDescription>
+
+        {error && (
+          <p className="mt-2 text-sm text-red-500">{error}</p>
+        )}
 
         <div className="mt-4 flex gap-3">
           <Button

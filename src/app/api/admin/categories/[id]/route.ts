@@ -28,6 +28,13 @@ export async function PUT(
     );
   }
 
+  if (body.name !== undefined && !body.name.trim()) {
+    return NextResponse.json(
+      { error: "O nome da categoria não pode ser vazio." },
+      { status: 400 }
+    );
+  }
+
   const category = await prisma.category.update({
     where: { id },
     data: {

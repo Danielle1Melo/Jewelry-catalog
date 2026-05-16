@@ -68,6 +68,7 @@ export function FeaturedProducts({ activeTab }: FeaturedProductsProps) {
     }
 
     setLoading(true);
+    setProducts([]);
     fetch(`/api/products?${params}`)
       .then((res) => res.json())
       .then((data: Product[]) => {

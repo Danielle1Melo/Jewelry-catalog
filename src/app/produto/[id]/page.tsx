@@ -53,12 +53,12 @@ export default function ProdutoPage() {
       })
       .then((data: Product) => {
         setProduct(data);
-        // Fetch related products from same category
-        return fetch(`/api/products?category=${encodeURIComponent(data.category.name)}`);
-      })
-      .then((res) => res.json())
-      .then((products: Product[]) => {
-        setRelated(products.filter((p) => p.id !== productId).slice(0, 4));
+        fetch(`/api/products?category=${encodeURIComponent(data.category.name)}`)
+          .then((res) => res.json())
+          .then((products: Product[]) => {
+            setRelated(products.filter((p) => p.id !== productId).slice(0, 4));
+          })
+          .catch(() => {});
       })
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false));

@@ -17,6 +17,13 @@ export async function PUT(
     return NextResponse.json({ error: "Body inválido." }, { status: 400 });
   }
 
+  if (!body.name || body.price == null || !body.categoryId) {
+    return NextResponse.json(
+      { error: "Campos obrigatórios: name, price, categoryId." },
+      { status: 400 }
+    );
+  }
+
   const existing = await prisma.product.findUnique({
     where: { id },
     include: { images: true },
@@ -36,15 +43,7 @@ export async function PUT(
     (img) => !newPublicIds.has(img.publicId)
   );
 
-  // Delete removed images from Cloudinary
-  await Promise.all(
-    removedImages.map((img) =>
-      cloudinary.uploader.destroy(img.publicId).catch(() => null)
-    )
-  );
-
   const product = await prisma.$transaction(async (tx) => {
-    // Delete all existing images and recreate
     await tx.productImage.deleteMany({ where: { productId: id } });
 
     return tx.product.update({
@@ -58,15 +57,23 @@ export async function PUT(
         soldOut: body.soldOut ?? false,
         categoryId: body.categoryId,
         images: {
-          create: newImages.map((img) => ({
+          create: newImages.map((img, index) => ({
             url: img.url,
             publicId: img.publicId,
+            order: index,
           })),
         },
       },
       include: { images: true, category: true },
     });
   });
+
+  // Delete removed images from Cloudinary only after DB success
+  await Promise.all(
+    removedImages.map((img) =>
+      cloudinary.uploader.destroy(img.publicId).catch(() => null)
+    )
+  );
 
   return NextResponse.json(product);
 }
@@ -93,15 +100,15 @@ export async function DELETE(
     );
   }
 
-  // Delete images from Cloudinary
+  // Cascade deletes ProductImage records
+  await prisma.product.delete({ where: { id } });
+
+  // Delete images from Cloudinary only after DB success
   await Promise.all(
     product.images.map((img) =>
       cloudinary.uploader.destroy(img.publicId).catch(() => null)
     )
   );
-
-  // Cascade deletes ProductImage records
-  await prisma.product.delete({ where: { id } });
 
   return NextResponse.json({ success: true });
 }

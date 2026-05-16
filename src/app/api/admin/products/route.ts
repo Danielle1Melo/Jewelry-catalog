@@ -9,7 +9,7 @@ export async function POST(request: Request) {
 
   const body = await request.json().catch(() => null);
 
-  if (!body?.name || !body?.price || !body?.categoryId) {
+  if (!body?.name || body?.price == null || !body?.categoryId) {
     return NextResponse.json(
       { error: "Campos obrigatórios: name, price, categoryId." },
       { status: 400 }
@@ -27,9 +27,10 @@ export async function POST(request: Request) {
       categoryId: body.categoryId,
       images: {
         create: (body.images ?? []).map(
-          (img: { url: string; publicId: string }) => ({
+          (img: { url: string; publicId: string }, index: number) => ({
             url: img.url,
             publicId: img.publicId,
+            order: index,
           })
         ),
       },

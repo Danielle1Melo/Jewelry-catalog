@@ -84,6 +84,7 @@ function CatalogoContent() {
         : `/api/products?category=${encodeURIComponent(activeTab)}`;
 
     setLoading(true);
+    setProducts([]);
     fetch(url)
       .then((res) => res.json())
       .then(setProducts)
