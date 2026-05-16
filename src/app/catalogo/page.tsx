@@ -10,11 +10,11 @@ import { PriceFilter } from "@/components/storefront/PriceFilter";
 import { Footer } from "@/components/storefront/Footer";
 
 interface Product {
-  id: number;
+  id: string;
   name: string;
   price: number;
   isNew: boolean;
-  category: { id: number; name: string };
+  category: { id: string; name: string };
   images: { url: string }[];
 }
 
@@ -171,11 +171,13 @@ function CatalogoContent() {
 
 export default function CatalogoPage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="flex min-h-screen flex-col bg-white">
       <Header />
-      <Suspense>
-        <CatalogoContent />
-      </Suspense>
+      <div className="flex-1">
+        <Suspense>
+          <CatalogoContent />
+        </Suspense>
+      </div>
       <Footer />
     </div>
   );

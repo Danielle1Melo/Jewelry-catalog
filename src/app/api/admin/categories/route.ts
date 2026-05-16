@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { verifyAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@/generated/prisma";
+import { Prisma } from "@/generated/prisma/client";
 
 export async function POST(request: Request) {
   if (!(await verifyAdmin())) {

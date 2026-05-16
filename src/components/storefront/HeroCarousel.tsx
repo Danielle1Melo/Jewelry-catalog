@@ -4,17 +4,10 @@ import { useCallback, useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import Image from "next/image";
-import Banner1 from "@/assets/Banner.png";
 import Banner2 from "@/assets/BannerDM_desktop.png";
 import Banner3 from "@/assets/banner3.png";
 
 const slides = [
-  {
-    label: "COLEÇÃO PRATA",
-    heading: "Elegância atemporal",
-    subtitle: "Peças de prata para o seu dia a dia.",
-    image: Banner1,
-  },
   {
     label: "COLEÇÃO PRATA",
     heading: "Brilho natural",

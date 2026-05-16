@@ -14,10 +14,10 @@ import { ProductForm, type ProductFormData, type ExistingImage } from "./Product
 
 interface EditProductDialogProps {
   product: {
-    id: number;
+    id: string;
     name: string;
     price: number;
-    category: { id: number; name: string };
+    category: { id: string; name: string };
     description?: string;
     sizeDetails?: string;
     isNew: boolean;

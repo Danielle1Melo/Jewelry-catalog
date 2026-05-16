@@ -11,19 +11,19 @@ import { EditProductDialog } from "./admin/EditProductDialog";
 import { Loader2 } from "lucide-react";
 
 interface ProductImage {
-  id: number;
+  id: string;
   url: string;
   publicId: string;
 }
 
 interface Product {
-  id: number;
+  id: string;
   name: string;
   price: number;
   description: string;
   sizeDetails: string;
   isNew: boolean;
-  category: { id: number; name: string };
+  category: { id: string; name: string };
   images: ProductImage[];
 }
 

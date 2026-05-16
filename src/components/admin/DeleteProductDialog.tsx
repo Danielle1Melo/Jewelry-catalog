@@ -13,7 +13,7 @@ import { Button } from "../ui/button";
 
 interface DeleteProductDialogProps {
   product: {
-    id: number;
+    id: string;
     name: string;
   };
   onDeleted?: () => void;

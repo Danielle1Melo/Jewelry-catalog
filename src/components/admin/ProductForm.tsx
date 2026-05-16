@@ -12,14 +12,14 @@ import { uploadImages, type UploadedImage } from "@/services/uploadService";
 export interface ProductFormData {
   name: string;
   price: string;
-  categoryId: number | null;
+  categoryId: string | null;
   description: string;
   sizeDetails: string;
   isNew: boolean;
 }
 
 export interface ExistingImage {
-  id: number;
+  id: string;
   url: string;
   publicId: string;
 }
@@ -43,7 +43,7 @@ function getItemSrc(item: ImageItem) {
 }
 
 interface Category {
-  id: number;
+  id: string;
   name: string;
 }
 
@@ -91,7 +91,7 @@ export function ProductForm({
 
   const updateField = (
     field: keyof ProductFormData,
-    value: string | boolean | number | null
+    value: string | boolean | null
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
@@ -216,7 +216,7 @@ export function ProductForm({
           <Label>Categoria</Label>
           <Select
             value={formData.categoryId ? String(formData.categoryId) : undefined}
-            onValueChange={(value) => updateField("categoryId", Number(value))}
+            onValueChange={(value) => updateField("categoryId", value)}
             required
           >
             <SelectTrigger>

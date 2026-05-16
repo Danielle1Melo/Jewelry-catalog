@@ -6,11 +6,11 @@ import Link from "next/link";
 import { Loader2 } from "lucide-react";
 
 interface Product {
-  id: number;
+  id: string;
   name: string;
   price: number;
   isNew: boolean;
-  category: { id: number; name: string };
+  category: { id: string; name: string };
   images: { url: string }[];
 }
 
@@ -67,7 +67,7 @@ export function FeaturedProducts({ activeTab }: FeaturedProductsProps) {
     <section className="px-5 pb-10">
       <div className="mx-auto max-w-7xl">
         <div className="mb-6 text-center">
-          <span className="text-xs font-semibold tracking-widest text-tiffany uppercase">
+          <span className="text-xs font-semibold tracking-widest text-title uppercase">
             Selecionado para você
           </span>
           <h2 className="mt-1 font-heading text-2xl font-bold text-title">

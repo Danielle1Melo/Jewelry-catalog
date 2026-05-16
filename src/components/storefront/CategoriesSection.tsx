@@ -15,7 +15,7 @@ export function CategoriesSection({ activeTab, onTabChange }: CategoriesSectionP
   useEffect(() => {
     fetch("/api/categories")
       .then((res) => res.json())
-      .then((categories: { id: number; name: string }[]) => {
+      .then((categories: { id: string; name: string }[]) => {
         setTabs(["Todos", ...categories.map((c) => c.name)]);
       })
       .catch(() => {});

@@ -11,11 +11,6 @@ export async function PUT(
   }
 
   const { id } = await params;
-  const categoryId = Number(id);
-
-  if (Number.isNaN(categoryId)) {
-    return NextResponse.json({ error: "ID inválido." }, { status: 400 });
-  }
 
   const body = await request.json().catch(() => null);
   if (!body) {
@@ -23,7 +18,7 @@ export async function PUT(
   }
 
   const existing = await prisma.category.findUnique({
-    where: { id: categoryId },
+    where: { id },
   });
 
   if (!existing) {
@@ -34,7 +29,7 @@ export async function PUT(
   }
 
   const category = await prisma.category.update({
-    where: { id: categoryId },
+    where: { id },
     data: {
       ...(body.name !== undefined && { name: body.name.trim() }),
     },
@@ -52,14 +47,9 @@ export async function DELETE(
   }
 
   const { id } = await params;
-  const categoryId = Number(id);
-
-  if (Number.isNaN(categoryId)) {
-    return NextResponse.json({ error: "ID inválido." }, { status: 400 });
-  }
 
   const category = await prisma.category.findUnique({
-    where: { id: categoryId },
+    where: { id },
     include: { _count: { select: { products: true } } },
   });
 
@@ -77,7 +67,7 @@ export async function DELETE(
     );
   }
 
-  await prisma.category.delete({ where: { id: categoryId } });
+  await prisma.category.delete({ where: { id } });
 
   return NextResponse.json({ success: true });
 }

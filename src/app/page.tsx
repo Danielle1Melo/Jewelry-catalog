@@ -11,11 +11,13 @@ export default function HomePage() {
   const [activeTab, setActiveTab] = useState("Todos");
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="flex min-h-screen flex-col bg-white">
       <Header />
-      <HeroCarousel />
-      <CategoriesSection activeTab={activeTab} onTabChange={setActiveTab} />
-      <FeaturedProducts activeTab={activeTab} />
+      <div className="flex-1">
+        <HeroCarousel />
+        <CategoriesSection activeTab={activeTab} onTabChange={setActiveTab} />
+        <FeaturedProducts activeTab={activeTab} />
+      </div>
       <Footer />
     </div>
   );

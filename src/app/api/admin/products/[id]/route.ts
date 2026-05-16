@@ -12,19 +12,13 @@ export async function PUT(
   }
 
   const { id } = await params;
-  const productId = Number(id);
-
-  if (Number.isNaN(productId)) {
-    return NextResponse.json({ error: "ID inválido." }, { status: 400 });
-  }
-
   const body = await request.json().catch(() => null);
   if (!body) {
     return NextResponse.json({ error: "Body inválido." }, { status: 400 });
   }
 
   const existing = await prisma.product.findUnique({
-    where: { id: productId },
+    where: { id },
     include: { images: true },
   });
 
@@ -51,10 +45,10 @@ export async function PUT(
 
   const product = await prisma.$transaction(async (tx) => {
     // Delete all existing images and recreate
-    await tx.productImage.deleteMany({ where: { productId } });
+    await tx.productImage.deleteMany({ where: { productId: id } });
 
     return tx.product.update({
-      where: { id: productId },
+      where: { id },
       data: {
         name: body.name,
         price: body.price,
@@ -85,14 +79,9 @@ export async function DELETE(
   }
 
   const { id } = await params;
-  const productId = Number(id);
-
-  if (Number.isNaN(productId)) {
-    return NextResponse.json({ error: "ID inválido." }, { status: 400 });
-  }
 
   const product = await prisma.product.findUnique({
-    where: { id: productId },
+    where: { id },
     include: { images: true },
   });
 
@@ -111,7 +100,7 @@ export async function DELETE(
   );
 
   // Cascade deletes ProductImage records
-  await prisma.product.delete({ where: { id: productId } });
+  await prisma.product.delete({ where: { id } });
 
   return NextResponse.json({ success: true });
 }

@@ -11,24 +11,24 @@ import { useCart } from "@/context/CartContext";
 import { WHATSAPP_NUMERO } from "@/lib/constants";
 
 interface ProductImage {
-  id: number;
+  id: string;
   url: string;
 }
 
 interface Product {
-  id: number;
+  id: string;
   name: string;
   price: number;
   description: string;
   sizeDetails: string;
   isNew: boolean;
-  category: { id: number; name: string };
+  category: { id: string; name: string };
   images: ProductImage[];
 }
 
 export default function ProdutoPage() {
   const params = useParams();
-  const productId = Number(params.id);
+  const productId = params.id as string;
 
   const [product, setProduct] = useState<Product | null>(null);
   const [related, setRelated] = useState<Product[]>([]);
@@ -70,9 +70,9 @@ export default function ProdutoPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="flex min-h-screen flex-col bg-white">
         <Header />
-        <div className="flex justify-center py-16">
+        <div className="flex flex-1 justify-center py-16">
           <Loader2 className="h-6 w-6 animate-spin text-tiffany" />
         </div>
         <Footer />
@@ -82,9 +82,9 @@ export default function ProdutoPage() {
 
   if (notFound || !product) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="flex min-h-screen flex-col bg-white">
         <Header />
-        <div className="px-5 py-16 text-center">
+        <div className="flex-1 px-5 py-16 text-center">
           <p className="text-description">Produto não encontrado.</p>
           <Link
             href="/catalogo"
@@ -108,10 +108,10 @@ export default function ProdutoPage() {
     : [];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="flex min-h-screen flex-col bg-white">
       <Header />
 
-      <main className="px-5 py-6">
+      <main className="flex-1 px-5 py-6">
         <div className="mx-auto max-w-5xl">
           <Link
             href="/catalogo"

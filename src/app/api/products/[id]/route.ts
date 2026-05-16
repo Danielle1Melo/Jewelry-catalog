@@ -6,14 +6,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const productId = Number(id);
-
-  if (Number.isNaN(productId)) {
-    return NextResponse.json({ error: "ID inválido." }, { status: 400 });
-  }
 
   const product = await prisma.product.findUnique({
-    where: { id: productId },
+    where: { id },
     include: { images: true, category: true },
   });
 
