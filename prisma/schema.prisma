@@ -5,33 +5,34 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
 }
 
 model Category {
-  id       Int       @id @default(autoincrement())
+  id       String    @id @default(uuid())
   name     String    @unique
   products Product[]
 }
 
 model Product {
-  id          Int            @id @default(autoincrement())
+  id          String         @id @default(uuid())
   name        String
   price       Float
   description String         @default("")
   sizeDetails String         @default("")
   isNew       Boolean        @default(false)
+  soldOut     Boolean        @default(false)
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
-  categoryId  Int
+  categoryId  String
   category    Category       @relation(fields: [categoryId], references: [id])
   images      ProductImage[]
 }
 
 model ProductImage {
-  id        Int     @id @default(autoincrement())
+  id        String  @id @default(uuid())
   url       String
   publicId  String
-  productId Int
+  order     Int     @default(0)
+  productId String
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
