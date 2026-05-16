@@ -1,11 +1,15 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { DeleteProductDialog } from "./admin/DeleteProductDialog";
 import * as ScrollArea from "@radix-ui/react-scroll-area";
 import * as Separator from "@radix-ui/react-separator";
 import Image from "next/image";
 import { AddProductDialog } from "./admin/AddProductDialog";
 import { EditProductDialog } from "./admin/EditProductDialog";
+import { Search } from "lucide-react";
+import { Input } from "./ui/input";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "./ui/select";
 import earringsImg from "@/assets/earrings.png";
 
 import type { StaticImageData } from "next/image";
@@ -65,6 +69,21 @@ function ProductRow({ product }: { product: Product }) {
 
 export function ProductList() {
   const products = mockProducts;
+  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("Todas");
+
+  const categories = useMemo(() => {
+    const unique = [...new Set(products.map((p) => p.category))].sort();
+    return ["Todas", ...unique];
+  }, [products]);
+
+  const filtered = useMemo(() => {
+    return products.filter((p) => {
+      if (categoryFilter !== "Todas" && p.category !== categoryFilter) return false;
+      if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
+      return true;
+    });
+  }, [products, search, categoryFilter]);
 
   return (
     <main className="px-5 py-6">
@@ -72,23 +91,53 @@ export function ProductList() {
         <div>
           <h2 className="text-2xl font-bold text-title">Produtos</h2>
           <p className="text-sm text-description">
-            {products.length} itens no catálogo
+            {filtered.length} de {products.length} itens
           </p>
         </div>
 
         <AddProductDialog />
       </div>
 
-      <ScrollArea.Root className="max-h-[calc(100vh-12rem)] overflow-hidden rounded-xl bg-white shadow-sm">
+      <div className="mb-4 flex flex-col gap-2 sm:flex-row">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-description" />
+          <Input
+            placeholder="Buscar produto..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+          <SelectTrigger className="sm:w-48">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {categories.map((cat) => (
+              <SelectItem key={cat} value={cat}>
+                {cat}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <ScrollArea.Root className="max-h-[calc(100vh-16rem)] overflow-hidden rounded-xl bg-white shadow-sm">
         <ScrollArea.Viewport className="h-full w-full">
-          {products.map((product, index) => (
-            <div key={product.id}>
-              <ProductRow product={product} />
-              {index < products.length - 1 && (
-                <Separator.Root className="mx-4 h-px bg-gray-100" />
-              )}
+          {filtered.length > 0 ? (
+            filtered.map((product, index) => (
+              <div key={product.id}>
+                <ProductRow product={product} />
+                {index < filtered.length - 1 && (
+                  <Separator.Root className="mx-4 h-px bg-gray-100" />
+                )}
+              </div>
+            ))
+          ) : (
+            <div className="py-12 text-center">
+              <p className="text-sm text-description">Nenhum produto encontrado.</p>
             </div>
-          ))}
+          )}
         </ScrollArea.Viewport>
         <ScrollArea.Scrollbar
           className="flex touch-none select-none bg-transparent p-0.5 transition-colors data-[orientation=horizontal]:h-2.5 data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col"
