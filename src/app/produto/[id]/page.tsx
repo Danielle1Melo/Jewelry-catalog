@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, MessageCircle, Tag, Gift, ShoppingBag, Check, Loader2 } from "lucide-react";
@@ -28,6 +28,7 @@ interface Product {
 
 export default function ProdutoPage() {
   const params = useParams();
+  const router = useRouter();
   const productId = params.id as string;
 
   const [product, setProduct] = useState<Product | null>(null);
@@ -113,13 +114,14 @@ export default function ProdutoPage() {
 
       <main className="flex-1 px-5 py-6">
         <div className="mx-auto max-w-5xl">
-          <Link
-            href="/catalogo"
+          <button
+            type="button"
+            onClick={() => router.back()}
             className="mb-4 inline-flex items-center gap-1 text-sm font-medium text-description transition-colors hover:text-tiffany"
           >
             <ArrowLeft className="h-4 w-4" />
             Voltar
-          </Link>
+          </button>
 
           <div className="md:grid md:grid-cols-2 md:gap-10">
             <div>
