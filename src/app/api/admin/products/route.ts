@@ -16,27 +16,36 @@ export async function POST(request: Request) {
     );
   }
 
-  const product = await prisma.product.create({
-    data: {
-      name: body.name,
-      price: body.price,
-      description: body.description ?? "",
-      sizeDetails: body.sizeDetails ?? "",
-      isNew: body.isNew ?? false,
-      soldOut: body.soldOut ?? false,
-      categoryId: body.categoryId,
-      images: {
-        create: (body.images ?? []).map(
-          (img: { url: string; publicId: string }, index: number) => ({
-            url: img.url,
-            publicId: img.publicId,
-            order: index,
-          })
-        ),
+  try {
+    const product = await prisma.product.create({
+      data: {
+        name: body.name,
+        price: body.price,
+        description: body.description ?? "",
+        sizeDetails: body.sizeDetails ?? "",
+        isNew: body.isNew ?? false,
+        soldOut: body.soldOut ?? false,
+        sizes: body.sizes ?? [],
+        categoryId: body.categoryId,
+        images: {
+          create: (body.images ?? []).map(
+            (img: { url: string; publicId: string }, index: number) => ({
+              url: img.url,
+              publicId: img.publicId,
+              order: index,
+            })
+          ),
+        },
       },
-    },
-    include: { images: true, category: true },
-  });
+      include: { images: true, category: true },
+    });
 
-  return NextResponse.json(product, { status: 201 });
+    return NextResponse.json(product, { status: 201 });
+  } catch (err) {
+    console.error("POST /api/admin/products error:", err);
+    return NextResponse.json(
+      { error: "Erro interno ao criar produto." },
+      { status: 500 }
+    );
+  }
 }

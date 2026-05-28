@@ -23,6 +23,7 @@ interface Product {
   sizeDetails: string;
   isNew: boolean;
   soldOut: boolean;
+  sizes: string[];
   category: { id: string; name: string };
   images: ProductImage[];
 }
@@ -202,6 +203,22 @@ export default function ProductDetail({ productId }: { productId: string }) {
                       {detail}
                     </span>
                   ))}
+                </div>
+              )}
+
+              {product.sizes.length > 0 && (
+                <div className="mt-5">
+                  <p className="mb-2 text-sm font-medium text-title">Numerações disponíveis</p>
+                  <div className="flex flex-wrap gap-2">
+                    {product.sizes.map((size) => (
+                      <span
+                        key={size}
+                        className="rounded-full bg-tiffany/10 px-3.5 py-1.5 text-sm font-medium text-tiffany"
+                      >
+                        {size}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               )}
 

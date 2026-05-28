@@ -22,6 +22,7 @@ interface EditProductDialogProps {
     sizeDetails?: string;
     isNew: boolean;
     soldOut: boolean;
+    sizes?: string[];
     images?: ExistingImage[];
   };
   onSaved?: () => void;
@@ -38,6 +39,7 @@ export function EditProductDialog({ product, onSaved }: EditProductDialogProps) 
     sizeDetails: product.sizeDetails ?? "",
     isNew: product.isNew,
     soldOut: product.soldOut,
+    sizes: product.sizes ?? [],
   };
 
   return (
@@ -69,6 +71,7 @@ export function EditProductDialog({ product, onSaved }: EditProductDialogProps) 
                 sizeDetails: data.sizeDetails,
                 isNew: data.isNew,
                 soldOut: data.soldOut,
+                sizes: data.sizes,
                 categoryId: data.categoryId,
                 images,
               }),
