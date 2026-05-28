@@ -1,12 +1,11 @@
-import "dotenv/config";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import dotenv from "dotenv";
+import { expand } from "dotenv-expand";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client.js";
 
-const databaseUrl = process.env.DATABASE_URL;
-if (!databaseUrl?.trim()) {
-  throw new Error("Missing DATABASE_URL environment variable.");
-}
-const adapter = new PrismaBetterSqlite3({ url: databaseUrl });
+expand(dotenv.config());
+
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
 const PLACEHOLDER = "https://res.cloudinary.com/demo/image/upload/v1/samples/ecommerce";
