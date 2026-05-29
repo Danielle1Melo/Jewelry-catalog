@@ -15,6 +15,7 @@ interface Product {
   price: number;
   isNew: boolean;
   soldOut: boolean;
+  sizes: string[];
   category: { id: string; name: string };
   images: { url: string }[];
 }
@@ -67,6 +68,7 @@ function CatalogoContent() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<string[]>(["Todos"]);
   const [loading, setLoading] = useState(true);
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/categories")
@@ -85,6 +87,7 @@ function CatalogoContent() {
 
     setLoading(true);
     setProducts([]);
+    setSelectedSize(null);
     fetch(url)
       .then((res) => res.json())
       .then(setProducts)
@@ -98,11 +101,27 @@ function CatalogoContent() {
     router.replace(`/catalogo${params.toString() ? `?${params}` : ""}`);
   };
 
+  const isRingCategory = activeTab === "Anéis";
+
+  const availableSizes = isRingCategory
+    ? [...new Set(products.flatMap((p) => p.sizes ?? []).filter(Boolean))].sort((a, b) => Number(a) - Number(b))
+    : [];
+
+  const hasActiveFilters =
+    minPrice > PRICE_MIN || maxPrice < PRICE_MAX || selectedSize !== null;
+
   const filtered = products.filter((p) => {
     if (p.price < minPrice) return false;
     if (p.price > maxPrice) return false;
+    if (selectedSize && !(p.sizes ?? []).includes(selectedSize)) return false;
     return true;
   });
+
+  const clearFilters = () => {
+    setMinPrice(PRICE_MIN);
+    setMaxPrice(PRICE_MAX);
+    setSelectedSize(null);
+  };
 
   return (
     <main className="px-5 py-8">
@@ -144,7 +163,7 @@ function CatalogoContent() {
           </div>
         </div>
 
-        <div className="mb-6">
+        <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:gap-8">
           <PriceFilter
             min={PRICE_MIN}
             max={PRICE_MAX}
@@ -153,6 +172,40 @@ function CatalogoContent() {
             onMinChange={setMinPrice}
             onMaxChange={setMaxPrice}
           />
+
+          {isRingCategory && availableSizes.length > 0 && (
+            <div>
+              <p className="mb-2 text-sm font-medium text-title">Numeração</p>
+              <div className="flex flex-wrap gap-2">
+                {availableSizes.map((size, i) => (
+                  <button
+                    key={`${size}-${i}`}
+                    type="button"
+                    onClick={() =>
+                      setSelectedSize((prev) => (prev === size ? null : size))
+                    }
+                    className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
+                      selectedSize === size
+                        ? "bg-tiffany text-white"
+                        : "bg-gray-100 text-description hover:bg-gray-200"
+                    }`}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="shrink-0 self-start text-sm font-medium text-tiffany transition-colors hover:text-tiffany-dark md:self-end md:pb-0.5"
+            >
+              Limpar filtros
+            </button>
+          )}
         </div>
 
         {loading ? (

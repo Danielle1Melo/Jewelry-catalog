@@ -41,7 +41,7 @@ export function PriceFilter({
   );
 
   return (
-    <div className="max-w-xs">
+    <div className="w-full max-w-xs shrink-0">
       <div className="mb-3 flex items-center justify-between">
         <span className="text-sm font-medium text-title">Preço</span>
         <span className="text-sm text-description">

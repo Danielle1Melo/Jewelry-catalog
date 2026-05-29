@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { X as XIcon, ImagePlus, Loader2, ChevronLeft, ChevronRight, Crop } from "lucide-react";
+import { X as XIcon, ImagePlus, Loader2, ChevronLeft, ChevronRight, Crop, Plus } from "lucide-react";
 import { ImageCropDialog } from "./ImageCropDialog";
 import { Button } from "../ui/button";
 import { Input, Textarea } from "../ui/input";
@@ -18,6 +18,7 @@ export interface ProductFormData {
   sizeDetails: string;
   isNew: boolean;
   soldOut: boolean;
+  sizes: string[];
 }
 
 export interface ExistingImage {
@@ -65,6 +66,7 @@ const emptyFormData: ProductFormData = {
   sizeDetails: "",
   isNew: false,
   soldOut: false,
+  sizes: [],
 };
 
 export function ProductForm({
@@ -90,6 +92,24 @@ export function ProductForm({
     originalFile?: File;
   } | null>(null);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [sizeInput, setSizeInput] = useState("");
+
+  const selectedCategory = categories.find((c) => c.id === formData.categoryId);
+  const isRingCategory = selectedCategory?.name === "Anéis";
+
+  const addSize = () => {
+    const value = sizeInput.trim();
+    if (!value || formData.sizes.includes(value)) return;
+    setFormData((prev) => ({ ...prev, sizes: [...prev.sizes, value] }));
+    setSizeInput("");
+  };
+
+  const removeSize = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      sizes: prev.sizes.filter((s) => s !== value),
+    }));
+  };
 
   useEffect(() => {
     fetch("/api/categories")
@@ -313,6 +333,47 @@ export function ProductForm({
         />
       </div>
 
+      {isRingCategory && (
+        <div className="space-y-1.5">
+          <Label>Numerações disponíveis</Label>
+          <div className="flex gap-2">
+            <Input
+              placeholder="Ex: 18"
+              value={sizeInput}
+              onChange={(e) => setSizeInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addSize();
+                }
+              }}
+            />
+            <Button type="button" variant="primary" onClick={addSize}>
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
+          {formData.sizes.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              {formData.sizes.map((size) => (
+                <span
+                  key={size}
+                  className="inline-flex items-center gap-1 rounded-full bg-tiffany/10 px-3 py-1 text-sm font-medium text-tiffany"
+                >
+                  {size}
+                  <button
+                    type="button"
+                    onClick={() => removeSize(size)}
+                    className="rounded-full p-0.5 hover:bg-tiffany/20"
+                  >
+                    <XIcon className="h-3 w-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="space-y-1.5">
         <Label>Imagens</Label>
 
@@ -423,7 +484,7 @@ export function ProductForm({
         type="submit"
         variant="primary"
         className="w-full justify-center"
-        disabled={uploading}
+        disabled={uploading || (isRingCategory && sizeInput.trim().length > 0)}
       >
         {uploading ? (
           <>

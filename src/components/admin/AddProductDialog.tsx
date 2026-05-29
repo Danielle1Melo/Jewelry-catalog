@@ -47,6 +47,7 @@ export function AddProductDialog({ onSaved }: AddProductDialogProps) {
                 sizeDetails: data.sizeDetails,
                 isNew: data.isNew,
                 soldOut: data.soldOut,
+                sizes: data.sizes,
                 categoryId: data.categoryId,
                 images,
               }),
