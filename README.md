@@ -1,6 +1,8 @@
 # DM Pratas - Jewelry Catalog
 
-Full-stack jewelry and semi-jewelry catalog application with an admin panel. Frontend and API live in the same repository using Next.js.
+Catálogo online de joias com painel administrativo para gerenciar produtos, categorias e imagens. Desenvolvido para uma joalheria real e disponível em produção.
+
+**Deploy:** [dmpratas.sttarnord.com.br](https://dmpratas.sttarnord.com.br/)
 
 ## Tech Stack
 
